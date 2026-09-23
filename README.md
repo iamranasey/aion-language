@@ -27,6 +27,8 @@ AION is in the earliest public project stage.
 What exists now:
 
 - A provisional language specification in [`SPEC.md`](SPEC.md).
+- A functional direction document in [`docs/FUNCTIONAL-VISION.md`](docs/FUNCTIONAL-VISION.md).
+- A development philosophy in [`docs/DEVELOPMENT-PHILOSOPHY.md`](docs/DEVELOPMENT-PHILOSOPHY.md).
 - An initial project philosophy and proposed toolchain direction.
 - A small example vocabulary for expressing systems, entities, rules, permissions, requirements, guarantees, constraints, invariants, and tests.
 
@@ -116,6 +118,7 @@ Current repository layout:
 .
 ├── README.md   # Project overview
 ├── SPEC.md     # Experimental v0.1 language specification
+├── docs/       # Functional vision and development philosophy
 ├── LICENSE     # Proprietary license notice
 └── .gitignore
 ```
@@ -155,10 +158,15 @@ AION development should follow these principles:
 - Do not overclaim capabilities before they exist.
 - Document design decisions before treating them as stable language behavior.
 - Prefer deterministic compiler foundations over opaque generation.
+- Use mathematics to clarify structure, relationships, constraints, invariants, and compositional reasoning.
+- Use physics to reason about systems, interactions, causality, state, constraints, and failure modes.
+- Draw carefully from logic, formal methods, computer science, systems theory, information theory, control theory, cognitive science, linguistics, security engineering, and other scientific foundations where they help reduce complexity into clearer structure.
 - Keep security and validation concepts visible in the language core.
 - Treat AI assistance as a toolchain layer, not as a substitute for precise semantics.
 - Make examples concrete enough to test the design.
 - Keep experimental features clearly marked until they are stable.
+
+See [`docs/DEVELOPMENT-PHILOSOPHY.md`](docs/DEVELOPMENT-PHILOSOPHY.md) for the fuller philosophy.
 
 ## Contributing
 
