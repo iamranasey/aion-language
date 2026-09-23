@@ -116,7 +116,7 @@ Current repository layout:
 .
 ├── README.md   # Project overview
 ├── SPEC.md     # Experimental v0.1 language specification
-├── LICENSE     # MIT License
+├── LICENSE     # Proprietary license notice
 └── .gitignore
 ```
 
@@ -178,4 +178,4 @@ Before contributing implementation code, align changes with [`SPEC.md`](SPEC.md)
 
 ## License
 
-AION is released under the [MIT License](LICENSE).
+AION is proprietary software. All rights are reserved unless explicit written permission is granted by the copyright holder. See [LICENSE](LICENSE) for details.
