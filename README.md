@@ -152,7 +152,7 @@ Current repository layout:
 ├── GRAMMAR.md     # EBNF grammar, guarantee semantics, decision log
 ├── MILESTONES.md  # Milestone plan with exit criteria
 ├── PHILOSOPHY.md  # Development philosophy and status vocabulary
-├── LICENSE        # Proprietary license notice
+├── LICENSE        # MIT License
 └── .gitignore
 ```
 
@@ -171,7 +171,7 @@ Expected future layout:
 
 The full plan with exit criteria is in [`MILESTONES.md`](MILESTONES.md). Summary:
 
-1. **M0 — Specification hardening:** grammar + decision log merged; 5 example specs; licensing decision recorded.
+1. **M0 — Specification hardening:** grammar + decision log merged; 5 example specs; MIT licensing decision recorded.
 2. **M1 — Parser and AST:** hand-written deterministic parser; conformance suite parses; round-trip printing.
 3. **M2 — Semantic model and static validation:** symbol tables, conflict detection, static guarantees, TEST interpreter.
 4. **M3 — Intermediate representation:** documented IR schema with round-trip preservation.
@@ -208,6 +208,6 @@ Before contributing implementation code, align changes with [`SPEC.md`](SPEC.md)
 
 ## License
 
-AION is currently proprietary software. All rights are reserved unless explicit written permission is granted by the copyright holder. See [LICENSE](LICENSE) for details.
-
-**Open recommendation (not yet acted on):** an all-rights-reserved license suppresses exactly the experimentation — alternate implementations, playgrounds, forks — that an experimental language needs to evolve. If adoption and external validation are goals, consider MIT/Apache-2.0 for code and CC BY 4.0 for the specification, or a staged approach (proprietary until M2, then open). This is the copyright holder's decision; the LICENSE file is unchanged until it is made.
+AION is released under the [MIT License](LICENSE). This permissive license
+applies to the repository's code, documentation, language specification,
+examples, and related materials unless a file states otherwise.
