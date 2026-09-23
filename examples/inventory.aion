@@ -1,0 +1,45 @@
+SYSTEM Inventory
+
+ENTITY Clerk
+    roles: [Picker, Manager]
+
+ENTITY Item
+    fields: [quantity: int, active: bool]
+
+ENTITY Shipment
+    fields: [count: int]
+
+ACTION receive(Clerk[Picker], Item) -> Shipment
+ACTION adjust(Clerk[Manager], Item)
+ACTION deactivate(Clerk[Manager], Item)
+
+RULE InventoryPolicy
+ALLOW
+    Clerk[Picker] -> receive
+    Clerk[Manager] -> adjust
+    Clerk[Manager] -> deactivate
+DENY
+    Clerk -> deactivate
+REQUIRE
+    adjust -> AUDIT
+
+INVARIANT active_item_stays_active
+    after adjust, Item.active unchanged
+
+CONSTRAINT shipment_within_stock
+    shipment.count <= item.quantity
+
+GUARANTEE static inventory_edges_are_valid
+    every ALLOW/DENY edge targets a declared ACTION
+    and no (subject, action) pair appears in both ALLOW and DENY
+
+GUARANTEE static inventory_has_no_dead_actions
+    every declared ACTION is reachable by some ALLOW edge
+
+TEST picker_can_receive
+    Clerk[Picker] performs receive(Item)
+    EXPECT ALLOWED
+
+TEST picker_cannot_adjust
+    Clerk[Picker] attempts adjust(Item)
+    EXPECT DENIED
