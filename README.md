@@ -27,55 +27,86 @@ AION is in the earliest public project stage.
 What exists now:
 
 - A provisional language specification in [`SPEC.md`](SPEC.md).
-- A functional direction document in [`docs/FUNCTIONAL-VISION.md`](docs/FUNCTIONAL-VISION.md).
-- A development philosophy in [`docs/DEVELOPMENT-PHILOSOPHY.md`](docs/DEVELOPMENT-PHILOSOPHY.md).
-- An initial project philosophy and proposed toolchain direction.
-- A small example vocabulary for expressing systems, entities, rules, permissions, requirements, guarantees, constraints, invariants, and tests.
+- A working grammar (EBNF), guarantee semantics, and decision log in [`GRAMMAR.md`](GRAMMAR.md).
+- A milestone plan with explicit exit criteria in [`MILESTONES.md`](MILESTONES.md).
+- A development philosophy in [`PHILOSOPHY.md`](PHILOSOPHY.md).
+- One normative example (`OrderService`, in `SPEC.md`) that doubles as the first conformance target.
 
 What does not exist yet:
 
 - A working lexer, parser, compiler, or interpreter.
-- A finalized grammar or type system.
-- A stable intermediate representation.
-- Formal verification support.
+- A finalized type system beyond the v0.1 primitives.
+- An intermediate representation.
+- Formal verification support (`proof`-class guarantees have no backend).
 - Production code generation.
-- A complete standard library or runtime.
+- A standard library or runtime.
 
-Any examples in this repository should be treated as design exploration until the implementation catches up with the specification.
+Per the status vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the language is **Specified**. Nothing is yet **Implemented**, **Tested**, **Verified**, or **Proven**. Examples should be treated as design exploration until the implementation catches up with the specification.
 
 ## Example Syntax
 
-The following example illustrates the intended style of AION. It is provisional and may change as the language design matures.
+The following is the v0.1 normative example. It is general (an order-processing service — a domain any reader already understands), fully self-contained (every name is declared before use), and every property in it is checkable by the toolchain semantics defined in [`GRAMMAR.md`](GRAMMAR.md).
 
 ```aion
-SYSTEM HospitalAccess
+SYSTEM OrderService
 
-ENTITY User
-    roles: [Doctor, Nurse, Admin]
+ENTITY Customer
 
-ENTITY PatientRecord
+ENTITY Staff
+    roles: [Support, Finance]
 
-RULE PatientRecordAccess
+ENTITY Order
+    fields: [total: int, paid: bool]
 
+ENTITY Payment
+    fields: [amount: int]
+
+ACTION create_order(Customer) -> Order
+ACTION pay(Customer, Order) -> Payment
+ACTION cancel(Staff[Support], Order)
+ACTION refund(Staff[Finance], Payment)
+
+RULE OrderPolicy
 ALLOW
-    Doctor -> READ PatientRecord
-    Nurse -> READ PatientRecord
-
+    Customer -> create_order
+    Customer -> pay
+    Staff[Support] -> cancel
+    Staff[Finance] -> refund
 DENY
-    unauthorized -> PatientRecord
-
+    Customer -> refund
 REQUIRE
-    every_access -> AUDIT
+    refund -> AUDIT
+    pay -> AUDIT
 
-GUARANTEE
-    unauthorized_access == 0
+INVARIANT paid_total_final
+    after pay, Order.total unchanged
+
+CONSTRAINT refund_limited
+    refund.amount <= payment.amount
+
+GUARANTEE static well_formed_policy
+    every ALLOW/DENY edge targets a declared ACTION
+    and no (subject, action) pair appears in both ALLOW and DENY
+
+GUARANTEE static no_dead_actions
+    every declared ACTION is reachable by some ALLOW edge
+
+TEST support_cannot_refund
+    Staff[Support] attempts refund(Payment)
+    EXPECT DENIED
+
+TEST customer_payment_is_allowed_and_audited
+    Customer performs pay(Order)
+    EXPECT ALLOWED, AUDIT
 ```
 
-This example expresses access intent and security requirements without choosing a programming language, database, service framework, or infrastructure provider.
+This example expresses access policy, audit obligations, a state invariant, a bounded constraint, and statically checkable guarantees without choosing a programming language, database, service framework, or infrastructure provider.
+
+Note the deliberate contrast with informal intent such as "unauthorized access is impossible": under the v0.1 semantics, that phrase is not a valid guarantee at all — it names no declared construct and belongs to the unsupported `proof` class. AION's goal is that such statements are either made precise or rejected, never silently accepted.
 
 ## Proposed Language Constructs
 
-The initial vocabulary is intentionally small and subject to change:
+The v0.1 vocabulary:
 
 - `SYSTEM`
 - `ENTITY`
@@ -89,7 +120,7 @@ The initial vocabulary is intentionally small and subject to change:
 - `INVARIANT`
 - `TEST`
 
-These constructs are intended to describe system meaning, behavior, policy, and expected properties before implementation details are introduced.
+These constructs are intended to describe system meaning, behavior, policy, and expected properties before implementation details are introduced. The grammar in [`GRAMMAR.md`](GRAMMAR.md) defines their syntax and the decision log records why they work the way they do.
 
 ## Proposed Architecture
 
@@ -108,7 +139,7 @@ AION Source
   -> Executable System
 ```
 
-An AI reasoning layer may eventually assist with implementation generation, optimization, explanation, and mapping intent to target technologies. However, AION should not require an LLM for basic parsing or deterministic language analysis.
+An AI reasoning layer may eventually assist with implementation generation, optimization, explanation, and mapping intent to target technologies — layered above the intermediate representation, never inside parsing or validation.
 
 ## Project Structure
 
@@ -116,57 +147,50 @@ Current repository layout:
 
 ```text
 .
-├── README.md   # Project overview
-├── SPEC.md     # Experimental v0.1 language specification
-├── docs/       # Functional vision and development philosophy
-├── LICENSE     # Proprietary license notice
+├── README.md      # Project overview
+├── SPEC.md        # Experimental v0.1 language specification
+├── GRAMMAR.md     # EBNF grammar, guarantee semantics, decision log
+├── MILESTONES.md  # Milestone plan with exit criteria
+├── PHILOSOPHY.md  # Development philosophy and status vocabulary
+├── LICENSE        # Proprietary license notice
 └── .gitignore
 ```
 
-Expected future layout may include:
+Expected future layout:
 
 ```text
 .
-├── examples/       # Example AION programs and design cases
-├── src/            # Lexer, parser, semantic model, and compiler prototype
-├── tests/          # Language and toolchain tests
-├── docs/           # Design notes, architecture, and contributor documentation
+├── examples/       # OrderService + conformance suite specs
+├── src/            # Lexer, parser, semantic model (M1/M2)
+├── tests/          # Positive and negative conformance specs
+├── docs/           # Design notes, IR schema (M3)
 └── tools/          # Developer utilities and experiments
 ```
 
-The future structure is directional, not a guarantee of current functionality.
+## Milestones
 
-## Roadmap Direction
+The full plan with exit criteria is in [`MILESTONES.md`](MILESTONES.md). Summary:
 
-AION's roadmap starts with language foundation work before production tooling:
+1. **M0 — Specification hardening:** grammar + decision log merged; 5 example specs; licensing decision recorded.
+2. **M1 — Parser and AST:** hand-written deterministic parser; conformance suite parses; round-trip printing.
+3. **M2 — Semantic model and static validation:** symbol tables, conflict detection, static guarantees, TEST interpreter.
+4. **M3 — Intermediate representation:** documented IR schema with round-trip preservation.
+5. **M4 — First code-generation target:** narrow policy artifact target; generated output passes the same TEST scenarios.
+6. **M5 — AI-assisted tooling:** LLM layer above the IR only, after M3.
 
-1. Clarify and version the core language specification.
-2. Define the grammar and canonical syntax.
-3. Design the type system and semantic model.
-4. Build a deterministic lexer and parser.
-5. Represent parsed programs as an AST and intermediate representation.
-6. Add validation for constraints, permissions, denials, guarantees, and invariants.
-7. Create example AION programs that drive language decisions.
-8. Add tests for language behavior and conformance.
-9. Explore code generation targets after semantics are clear.
-10. Investigate AI-assisted tooling only where it strengthens, explains, or accelerates deterministic workflows.
+Language foundation work comes before production tooling; AI assistance comes only where it strengthens deterministic workflows.
 
 ## Development Principles
 
-AION development should follow these principles:
+AION development follows these principles (fuller version in [`PHILOSOPHY.md`](PHILOSOPHY.md)):
 
 - Do not overclaim capabilities before they exist.
-- Document design decisions before treating them as stable language behavior.
+- Record design decisions in [`GRAMMAR.md`](GRAMMAR.md) before treating them as stable.
 - Prefer deterministic compiler foundations over opaque generation.
-- Use mathematics to clarify structure, relationships, constraints, invariants, and compositional reasoning.
-- Use physics to reason about systems, interactions, causality, state, constraints, and failure modes.
-- Draw carefully from logic, formal methods, computer science, systems theory, information theory, control theory, cognitive science, linguistics, security engineering, and other scientific foundations where they help reduce complexity into clearer structure.
 - Keep security and validation concepts visible in the language core.
-- Treat AI assistance as a toolchain layer, not as a substitute for precise semantics.
+- Treat AI assistance as a toolchain layer, not a substitute for precise semantics.
 - Make examples concrete enough to test the design.
-- Keep experimental features clearly marked until they are stable.
-
-See [`docs/DEVELOPMENT-PHILOSOPHY.md`](docs/DEVELOPMENT-PHILOSOPHY.md) for the fuller philosophy.
+- Keep experimental features clearly marked until stable.
 
 ## Contributing
 
@@ -174,16 +198,16 @@ AION is early enough that design discussion is as important as implementation.
 
 Good contribution areas include:
 
-- Reviewing and improving the language specification.
-- Proposing concrete syntax examples.
-- Identifying ambiguous semantics or missing constructs.
-- Designing grammar, AST, and intermediate representation options.
-- Adding example AION programs that expose real system-design needs.
-- Building the first lexer, parser, semantic model, and test suite.
+- Reviewing and improving [`GRAMMAR.md`](GRAMMAR.md) (with decision-log entries).
+- Writing conformance specs for the M0 suite (well-formed and deliberately broken ones).
+- Designing the IR schema for M3.
+- Building the M1 parser and M2 validator.
 - Writing documentation that separates current behavior from future plans.
 
-Before contributing implementation code, align changes with [`SPEC.md`](SPEC.md) and keep experimental behavior clearly labeled.
+Before contributing implementation code, align changes with [`SPEC.md`](SPEC.md) and [`GRAMMAR.md`](GRAMMAR.md), and keep experimental behavior clearly labeled.
 
 ## License
 
-AION is proprietary software. All rights are reserved unless explicit written permission is granted by the copyright holder. See [LICENSE](LICENSE) for details.
+AION is currently proprietary software. All rights are reserved unless explicit written permission is granted by the copyright holder. See [LICENSE](LICENSE) for details.
+
+**Open recommendation (not yet acted on):** an all-rights-reserved license suppresses exactly the experimentation — alternate implementations, playgrounds, forks — that an experimental language needs to evolve. If adoption and external validation are goals, consider MIT/Apache-2.0 for code and CC BY 4.0 for the specification, or a staged approach (proprietary until M2, then open). This is the copyright holder's decision; the LICENSE file is unchanged until it is made.

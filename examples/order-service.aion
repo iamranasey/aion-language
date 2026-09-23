@@ -1,0 +1,50 @@
+SYSTEM OrderService
+
+ENTITY Customer
+
+ENTITY Staff
+    roles: [Support, Finance]
+
+ENTITY Order
+    fields: [total: int, paid: bool]
+
+ENTITY Payment
+    fields: [amount: int]
+
+ACTION create_order(Customer) -> Order
+ACTION pay(Customer, Order) -> Payment
+ACTION cancel(Staff[Support], Order)
+ACTION refund(Staff[Finance], Payment)
+
+RULE OrderPolicy
+ALLOW
+    Customer -> create_order
+    Customer -> pay
+    Staff[Support] -> cancel
+    Staff[Finance] -> refund
+DENY
+    Customer -> refund
+REQUIRE
+    refund -> AUDIT
+    pay -> AUDIT
+
+INVARIANT paid_total_final
+    after pay, Order.total unchanged
+
+CONSTRAINT refund_limited
+    refund.amount <= payment.amount
+
+GUARANTEE static well_formed_policy
+    every ALLOW/DENY edge targets a declared ACTION
+    and no (subject, action) pair appears in both ALLOW and DENY
+
+GUARANTEE static no_dead_actions
+    every declared ACTION is reachable by some ALLOW edge
+
+TEST support_cannot_refund
+    Staff[Support] attempts refund(Payment)
+    EXPECT DENIED
+
+TEST customer_payment_is_allowed_and_audited
+    Customer performs pay(Order)
+    EXPECT ALLOWED, AUDIT

@@ -1,0 +1,45 @@
+SYSTEM DocumentAccess
+
+ENTITY User
+    roles: [Reader, Editor, Admin]
+
+ENTITY Document
+    fields: [size: int, archived: bool]
+
+ACTION create_document(User) -> Document
+ACTION read(User, Document) -> Document
+ACTION edit(User[Editor], Document)
+ACTION archive(User[Admin], Document)
+
+RULE DocumentPolicy
+ALLOW
+    User -> create_document
+    User[Reader] -> read
+    User[Editor] -> edit
+    User[Admin] -> archive
+DENY
+    User -> archive
+REQUIRE
+    edit -> AUDIT
+    archive -> AUDIT
+
+INVARIANT archive_is_final
+    after archive, Document.archived unchanged
+
+CONSTRAINT document_size_nonnegative
+    document.size >= 0
+
+GUARANTEE static document_policy_is_well_formed
+    every ALLOW/DENY edge targets a declared ACTION
+    and no (subject, action) pair appears in both ALLOW and DENY
+
+GUARANTEE static document_actions_are_live
+    every declared ACTION is reachable by some ALLOW edge
+
+TEST reader_can_read
+    User[Reader] performs read(Document)
+    EXPECT ALLOWED
+
+TEST reader_cannot_archive
+    User[Reader] attempts archive(Document)
+    EXPECT DENIED

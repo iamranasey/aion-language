@@ -1,0 +1,26 @@
+SYSTEM BrokenReferences
+
+ENTITY User
+    roles: [Reader]
+
+ENTITY Document
+    fields: [title: string]
+
+ACTION read(User, Document) -> Document
+
+RULE BrokenPolicy
+ALLOW
+    User -> remove
+    User[Writer] -> read
+REQUIRE
+    publish -> AUDIT
+
+INVARIANT missing_field
+    after read, Document.owner unchanged
+
+CONSTRAINT missing_value
+    document.size >= 0
+
+TEST missing_action
+    User attempts remove(Document)
+    EXPECT DENIED

@@ -1,0 +1,22 @@
+SYSTEM BrokenGuarantee
+
+ENTITY Operator
+    roles: [Auditor]
+
+ENTITY Record
+    fields: [value: int]
+
+ACTION inspect(Operator[Auditor], Record)
+
+RULE ConflictingPolicy
+ALLOW
+    Operator[Auditor] -> inspect
+DENY
+    Operator[Auditor] -> inspect
+
+GUARANTEE proof no_unauthorized_execution
+    every ALLOW/DENY edge targets a declared ACTION
+
+TEST auditor_can_inspect
+    Operator[Auditor] performs inspect(Record)
+    EXPECT ALLOWED
