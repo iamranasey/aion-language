@@ -32,17 +32,19 @@ What exists now:
 - A development philosophy in [`PHILOSOPHY.md`](PHILOSOPHY.md).
 - An AI contributor guide in [`AI-CONTRIBUTOR-GUIDE.md`](AI-CONTRIBUTOR-GUIDE.md), binding on AI-assisted contributions once merged.
 - One normative example (`OrderService`, in `SPEC.md`) that doubles as the first conformance target.
+- An **M1 syntactic front end** in [`src/`](src/): a hand-written deterministic lexer, LL(1) recursive-descent parser, AST, and pretty-printer with a stable `parse → print → re-parse` round-trip. All six `examples/*.aion` specs parse and round-trip; see [`src/README.md`](src/README.md) and [`tests/`](tests/).
 
 What does not exist yet:
 
-- A working lexer, parser, compiler, or interpreter.
+- A semantic model or validator (dangling references, conflicts, `proof` rejection, `TEST` arity — all **M2**).
+- A compiler, interpreter, or `TEST` runner.
 - A finalized type system beyond the v0.1 primitives.
-- An intermediate representation.
+- An intermediate representation (**M3**).
 - Formal verification support (`proof`-class guarantees have no backend).
-- Production code generation.
+- Production code generation (**M4**).
 - A standard library or runtime.
 
-Per the status vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the language is **Specified**. Nothing is yet **Implemented**, **Tested**, **Verified**, or **Proven**. Examples should be treated as design exploration until the implementation catches up with the specification.
+Per the status vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the language constructs are **Specified**; the M1 front end (lexer, parser, pretty-printer) is **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) passes — **Tested**. Nothing is yet **Verified** (no checking mechanism against formal properties beyond the round-trip) or **Proven** (no proof backend exists in v0.1–M4). Examples should be treated as design exploration until the semantic layers catch up with the specification.
 
 ## Example Syntax
 
@@ -157,6 +159,9 @@ Current repository layout:
 ├── PHILOSOPHY.md  # Development philosophy and status vocabulary
 ├── AI-CONTRIBUTOR-GUIDE.md  # Binding rules for AI-assisted contributions
 ├── LICENSE        # Proprietary license notice
+├── examples/      # OrderService + conformance suite specs (M0 seed)
+├── src/           # M1 front end: lexer, parser, AST, pretty-printer
+├── tests/         # M1 parse + round-trip tests over examples/
 └── .gitignore
 ```
 
@@ -164,9 +169,7 @@ Expected future layout:
 
 ```text
 .
-├── examples/       # OrderService + conformance suite specs
-├── src/            # Lexer, parser, semantic model (M1/M2)
-├── tests/          # Positive and negative conformance specs
+├── src/            # + semantic model and validator (M2)
 ├── docs/           # Design notes, IR schema (M3)
 └── tools/          # Developer utilities and experiments
 ```
@@ -205,7 +208,7 @@ Good contribution areas include:
 - Reviewing and improving [`GRAMMAR.md`](GRAMMAR.md) (with decision-log entries).
 - Writing conformance specs for the M0 suite (well-formed and deliberately broken ones).
 - Designing the IR schema for M3.
-- Building the M1 parser and M2 validator.
+- Building the M2 semantic validator (the M1 parser and pretty-printer are in place under [`src/`](src/)).
 - Writing documentation that separates current behavior from future plans.
 
 Before contributing implementation code, align changes with [`SPEC.md`](SPEC.md) and [`GRAMMAR.md`](GRAMMAR.md), and keep experimental behavior clearly labeled.
