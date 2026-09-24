@@ -30,6 +30,7 @@ What exists now:
 - A working grammar (EBNF), guarantee semantics, and decision log in [`GRAMMAR.md`](GRAMMAR.md).
 - A milestone plan with explicit exit criteria in [`MILESTONES.md`](MILESTONES.md).
 - A development philosophy in [`PHILOSOPHY.md`](PHILOSOPHY.md).
+- An AI contributor guide in [`AI-CONTRIBUTOR-GUIDE.md`](AI-CONTRIBUTOR-GUIDE.md), binding on AI-assisted contributions once merged.
 - One normative example (`OrderService`, in `SPEC.md`) that doubles as the first conformance target.
 
 What does not exist yet:
@@ -154,6 +155,7 @@ Current repository layout:
 ├── GRAMMAR.md     # EBNF grammar, guarantee semantics, decision log
 ├── MILESTONES.md  # Milestone plan with exit criteria
 ├── PHILOSOPHY.md  # Development philosophy and status vocabulary
+├── AI-CONTRIBUTOR-GUIDE.md  # Binding rules for AI-assisted contributions
 ├── LICENSE        # Proprietary license notice
 └── .gitignore
 ```
@@ -207,6 +209,8 @@ Good contribution areas include:
 - Writing documentation that separates current behavior from future plans.
 
 Before contributing implementation code, align changes with [`SPEC.md`](SPEC.md) and [`GRAMMAR.md`](GRAMMAR.md), and keep experimental behavior clearly labeled.
+
+AI-assisted contributions (any model or agent) must follow [`AI-CONTRIBUTOR-GUIDE.md`](AI-CONTRIBUTOR-GUIDE.md): it fixes the source-of-truth hierarchy, forbids status inflation and unlogged syntax, and requires every change to name the milestone exit criterion it satisfies.
 
 ## License
 
