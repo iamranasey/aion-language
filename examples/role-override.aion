@@ -1,0 +1,44 @@
+SYSTEM Publishing
+
+ENTITY Author
+    roles: [Member, Suspended]
+
+ENTITY Article
+    fields: [words: int]
+
+ACTION submit(Author) -> Article
+ACTION publish(Author, Article) -> Article
+
+# The override case D2/D11 exist for: a broad ALLOW on the bare entity with a
+# role-scoped DENY carved out of it for the same action. Different specificity,
+# so it is not a conflict; the DENY wins only for Author[Suspended].
+RULE PublishingPolicy
+ALLOW
+    Author -> submit
+    Author -> publish
+DENY
+    Author[Suspended] -> publish
+REQUIRE
+    publish -> AUDIT
+
+INVARIANT publish_keeps_length
+    after publish, Article.words unchanged
+
+CONSTRAINT article_nonempty
+    Article.words > 0
+
+GUARANTEE static publishing_policy_is_well_formed
+    NO_DANGLING_EDGES and CONFLICT_FREE
+
+GUARANTEE static publishing_has_no_dead_actions
+    NO_DEAD_ACTIONS
+
+# Bare ALLOW Author -> publish applies (no higher-specificity DENY matches).
+TEST member_can_publish
+    Author[Member] performs publish(Article)
+    EXPECT ALLOWED, AUDIT
+
+# Role-scoped DENY (specificity 2) overrides the bare ALLOW (specificity 1).
+TEST suspended_cannot_publish
+    Author[Suspended] attempts publish(Article)
+    EXPECT DENIED
