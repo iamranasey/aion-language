@@ -108,7 +108,7 @@ AION documentation and tooling distinguish levels of confidence:
 - **Verified** — a defined checking mechanism confirms the implementation satisfies explicit properties within a stated scope.
 - **Proven** — a formal proof exists under clearly stated assumptions and definitions.
 
-These terms are not interchangeable. At the v0.1 stage, the language is **Specified**; nothing is yet Implemented, Tested, Verified, or Proven.
+These terms are not interchangeable. At the v0.1 stage, the language constructs and grammar are **Specified**; the M1 front end (lexer, parser, AST, pretty-printer, under [`src/`](src/)) is **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) passes — **Tested**. Nothing is yet **Verified** (no checking mechanism against formal properties beyond the parse→print→re-parse round-trip) or **Proven** (no proof backend exists in v0.1–M4).
 
 ## Guidance for Language and Toolchain Design
 

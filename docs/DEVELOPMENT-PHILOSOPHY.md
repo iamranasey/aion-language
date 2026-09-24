@@ -1,176 +1,183 @@
-# AION Development Philosophy
+# AION Development Philosophy (Extended Companion)
 
-AION is an experimental language project, so its development philosophy must be ambitious in direction and disciplined in claims. The project should grow from simple, testable foundations before attempting broad automation or production-grade generation.
+**Scope of this document.** This is an extended, narrative companion to the
+canonical [`PHILOSOPHY.md`](../PHILOSOPHY.md) at the repository root. Where the
+two overlap, root `PHILOSOPHY.md` and the [`GRAMMAR.md`](../GRAMMAR.md) decision
+log are **authoritative**; this file must not contradict them. If it ever does,
+that is a defect to fix here, not a license to reinterpret the core docs. Per the
+source-of-truth hierarchy in [`AI-CONTRIBUTOR-GUIDE.md`](../AI-CONTRIBUTOR-GUIDE.md),
+decisions in `GRAMMAR.md` §3 win over prose anywhere.
 
-This document describes the principles that should guide AION as it moves from specification toward a functional implementation.
+AION is an experimental language project, so its development philosophy must be
+ambitious in direction and disciplined in claims. The project grows from simple,
+testable foundations before attempting broad automation or production-grade
+generation, and it never presents a future capability as a present one.
 
-## Core Principle: Reduce Complexity Into Clear Structure
+## Core Principle: Decompose Complexity
 
-AION should help humans and machines break complex systems into simpler, explicit structures.
+AION should help humans and machines break complex systems into simpler,
+explicit structures — decomposed, named, constrained, tested, and recomposed.
 
-The project should treat complexity as something to be decomposed, named, constrained, tested, and recomposed. A useful AION specification should make a system easier to reason about, not merely shorter to write.
+A useful AION specification should make a system easier to inspect, reason
+about, validate, explain, and implement, not merely shorter to write. If AION
+only makes a system shorter but not clearer, it has missed its purpose.
 
-This means AION should prefer:
+This means AION prefers:
 
 - explicit entities over hidden assumptions;
 - explicit actions over vague behavior;
 - explicit rules over scattered logic;
 - explicit constraints over informal expectations;
+- explicit invariants over accidental stability;
 - explicit guarantees over untested claims;
-- explicit tests over undocumented confidence.
+- explicit tests over undocumented confidence;
+- explicit semantics over interpretation by convention alone.
 
-The goal is not to remove complexity from the real world. The goal is to represent complex systems in forms that are easier to inspect, validate, explain, and implement.
+The goal is not to remove complexity from the real world. The goal is to
+represent complex systems in forms that expose their structure.
 
-## Mathematics
+## Foundations
 
-Mathematics should be one of AION's deepest foundations because it teaches how to reduce complexity into precise relationships.
+AION rests on **three** foundations, chosen because each offers a *method* of
+reasoning rather than a metaphor. A foundation earns its place only by showing up
+in a concrete design decision recorded in [`GRAMMAR.md`](../GRAMMAR.md) §3;
+borrowing a discipline's vocabulary without a corresponding decision is not
+allowed.
 
-Mathematical thinking can help AION with:
+| Foundation | Method of reasoning | Where it appears in AION |
+| --- | --- | --- |
+| **Mathematics** | Abstraction, relation, constraint, structure, composition | Type discipline, declared entities/fields, invariants, constraints, the guarantee-predicate catalog |
+| **Logic** | Consistency, implication, contradiction, consequence | Semantic validation, policy-conflict detection (D2/D11), the status vocabulary |
+| **Computer science & formal methods** | Grammars, parsers, ASTs, semantic models, IRs, checkable specifications | The deterministic toolchain, the LL(1) grammar (D9), the milestone exit criteria in [`MILESTONES.md`](../MILESTONES.md) |
 
-- abstraction;
-- formal structure;
-- set relationships;
-- type systems;
-- invariants;
-- constraints;
-- proof-oriented reasoning;
-- compositional design.
+### Mathematics
 
-For AION, mathematics is not only about calculation. It is about disciplined simplification: taking a complicated system and identifying the smaller structures, rules, and relationships that define it.
+Mathematics teaches how to reduce complexity into precise relationships. It
+supports AION's questions about a system: What are the core objects? What
+relations hold between them? Which states are allowed, and which are impossible?
+Which transformations preserve the rules? Which guarantees can actually be
+checked? For AION, mathematics is disciplined simplification — identifying the
+smaller structures and relations that define a system — not calculation for its
+own sake.
 
-AION should use mathematical principles to ask questions such as:
+### Logic
 
-- What are the core objects in this system?
-- What relationships exist between them?
-- Which states are allowed?
-- Which states are impossible?
-- Which transformations preserve system rules?
-- Which guarantees can actually be checked?
+Logic defines valid reasoning, implication, contradiction, and consistency, and
+formal methods turn requirements into properties a tool can check. AION uses
+these carefully and modestly: it does **not** claim formal verification until a
+real verification backend exists, but it designs the language so validation and
+proof-oriented reasoning remain possible later. The `proof` guarantee class is
+parsed but **unsupported in v0.1** (D5); validators must reject it from the
+stable core.
 
-This supports the project's central aim: moving from human intent to machine-readable meaning.
+### Computer Science & Formal Methods
 
-## Physics
+Computer science provides the practical foundations for grammars, parsers, type
+systems, compilers, automata, and programming-language theory. The lexer, parser,
+AST, semantic model, and intermediate representation must be **deterministic and
+testable**. Per **D9** and the M5 gate, no language model, embedding, or other
+non-deterministic component may sit in the parse or validate path — ever, and
+regardless of how it is framed.
 
-Physics should also influence AION because physics studies systems, forces, interactions, constraints, conservation, causality, and emergence.
+## Inspirations, Not Foundations
 
-Physics helps break complex behavior into models that can be tested against reality. AION can borrow that discipline by treating software systems as structured systems with interacting parts, not just collections of code.
+Physics, systems theory, information theory, control theory and cybernetics,
+cognitive science, linguistics, and biology each offer appealing lenses —
+system boundaries and causality, feedback and stability, signal versus noise,
+modularity and adaptation, readability and learnability. They may *inform*
+future work.
 
-Physical thinking can help AION with:
+They are **not** design inputs. An inspiration becomes a foundation only when a
+`GRAMMAR.md` decision-log entry demonstrates its relevance to a concrete language
+choice. Until then, AION does not reason from physical or biological metaphor,
+and this document does not claim otherwise. **Breadth is not a foundation.**
 
-- system boundaries;
-- cause and effect;
-- state transitions;
-- constraints;
-- flows of data, authority, and control;
-- stability and failure modes;
-- simple models that explain complex behavior.
+## Status Vocabulary and Honest Claims
 
-AION should adopt the physics habit of asking:
+AION documentation and tooling distinguish five levels of confidence, and they
+are not interchangeable:
 
-- What are the entities in the system?
-- What interactions are allowed?
-- What interactions are forbidden?
-- What changes when an action occurs?
-- What must remain invariant?
-- What failure modes appear when parts interact?
+- **Specified** — described in project documentation.
+- **Implemented** — working code exists in the repository.
+- **Tested** — automated or documented tests exercise the behavior.
+- **Verified** — a defined checking mechanism confirms the implementation
+  satisfies explicit properties within a stated scope.
+- **Proven** — a formal proof exists under clearly stated assumptions.
 
-This is especially relevant for security, network policy, workflows, distributed systems, and infrastructure modeling.
+Applied to the current repository: the **language constructs and grammar are
+Specified**; the **M1 front end** (lexer, parser, AST, pretty-printer, under
+[`src/`](../src/)) is **Implemented** and — because [`tests/test_m1.py`](../tests/test_m1.py)
+passes — **Tested**; **nothing is yet Verified or Proven** (no checking mechanism
+beyond the parse→print→re-parse round-trip, and no proof backend exists in
+v0.1–M4). Claims must never be stated a level above what they have earned.
 
-## Other Scientific Foundations
+## Verification Before Trust
 
-AION can also benefit from several other fields of fundamental knowledge.
+AION does not ask users to trust generated systems blindly — including systems
+generated by an AI model. Trust comes from parsing, validation, testing,
+verification mechanisms, reviewable output, and evidence. Claim strength is
+bounded by guarantee class: `static` > `monitor`, and any `proof` claim requires
+an actual proof. Ambition is documented as direction, never presented as
+completed capability.
 
-### Logic and Formal Methods
+## Fail Closed
 
-Logic helps define valid reasoning, contradiction, implication, and consistency. Formal methods help turn important requirements into properties that tools can check.
+**D1** — absence of an `ALLOW` means denial — is a security principle about the
+language, and it is also the instinct AION applies to its own process. When it is
+uncertain whether something is permitted by the current spec, grammar, or
+milestone scope, the project treats it as *not allowed* and asks, rather than
+treating silence as permission to proceed. Design decisions are recorded in
+[`GRAMMAR.md`](../GRAMMAR.md) before they are treated as stable; experimental
+features stay clearly marked until they are not.
 
-AION should use these ideas carefully and modestly. The project should not claim formal verification until it has real verification mechanisms, but it should design its language so that validation and proof-oriented reasoning are possible later.
+## Differentiation
 
-### Computer Science
-
-Computer science provides the practical foundations for grammars, parsers, type systems, compilers, automata, algorithms, complexity, security, databases, distributed systems, and programming language theory.
-
-AION should build on established compiler and language-design practice. The parser, AST, semantic model, and intermediate representation should be deterministic and testable.
-
-### Systems Theory
-
-Systems theory studies how parts interact to form larger wholes. This is directly relevant to AION because software systems are rarely isolated functions; they are networks of rules, data, users, services, policies, and constraints.
-
-Systems thinking can help AION model:
-
-- components;
-- boundaries;
-- dependencies;
-- feedback loops;
-- emergent behavior;
-- failure propagation;
-- system-level guarantees.
-
-### Information Theory
-
-Information theory can help AION think about signal, noise, compression, uncertainty, and representation.
-
-AION should aim to preserve important meaning while reducing unnecessary implementation noise. A good specification should compress the intent of a system without losing the rules needed to validate and implement it.
-
-### Control Theory and Cybernetics
-
-Control theory and cybernetics study feedback, regulation, adaptation, and stability.
-
-These ideas can help AION reason about systems that monitor behavior, enforce policies, respond to events, recover from failures, or coordinate agents and services.
-
-### Cognitive Science
-
-AION must remain readable and usable by humans. Cognitive science can help the project design syntax and tooling that reduce mental load instead of increasing it.
-
-AION should make important system meaning visible, avoid unnecessary ambiguity, and help users understand why a rule, validation error, or generated behavior exists.
-
-### Linguistics
-
-Linguistics can help AION design a language that is expressive, consistent, and understandable.
-
-AION is not natural language, but it should learn from language structure: vocabulary, grammar, meaning, ambiguity, context, and interpretation. The project should prefer clear machine-readable syntax over vague prose while still remaining readable to humans.
-
-### Security Engineering
-
-Security engineering should remain central to AION because permissions, denials, audit requirements, constraints, and guarantees are first-class language concepts.
-
-AION should treat security as part of the system model, not as an afterthought added after implementation.
-
-### Biology and Evolutionary Systems
-
-Biology can offer useful lessons about modularity, adaptation, resilience, constraints, and complex systems emerging from simpler rules.
-
-AION should not imitate biology loosely or metaphorically where precision is needed, but it can learn from biological systems by valuing modularity, robustness, and adaptation over brittle complexity.
+AION's positioning relative to Rego/Cedar, TLA+/Alloy/Dafny, and Gherkin — and
+the falsifiable bet that its value is a substrate an AI can implement *against*
+where "did the AI get it right" is a decidable question — is stated in
+[`PRIOR-ART.md`](../PRIOR-ART.md) §2 (adopted) and summarized in root
+[`PHILOSOPHY.md`](../PHILOSOPHY.md) and [`README.md`](../README.md). That thesis
+is itself **Specified**: direction, not demonstrated capability. The milestones
+that would validate or refute it are M4 (generation traceability) and M5 (AI
+tooling gated behind deterministic validation).
 
 ## Development Principles
 
-AION development should follow these principles:
-
 - Start with small, rigorous models before broad generation.
-- Break complex systems into explicit entities, actions, rules, constraints, guarantees, and tests.
+- Break complex systems into explicit entities, actions, rules, constraints,
+  guarantees, invariants, and tests.
 - Prefer deterministic compiler foundations over opaque generation.
 - Use mathematics to clarify structure and relationships.
-- Use physics to reason about systems, interactions, causality, constraints, and invariants.
-- Use logic and formal methods to support validation without overclaiming verification.
-- Use systems theory to understand how local rules affect whole-system behavior.
-- Use information theory to preserve meaning while reducing unnecessary complexity.
-- Use cognitive science and linguistics to keep the language readable and learnable.
-- Keep security visible in the language core.
-- Treat AI assistance as a toolchain layer, not as a substitute for precise semantics.
-- Document design decisions before treating them as stable language behavior.
+- Use logic and formal methods to support validation without overclaiming
+  verification.
+- Keep security and validation concepts visible in the language core.
+- Treat AI assistance as a toolchain layer above the IR, never a substitute for
+  precise semantics and never part of parsing or validation.
+- Make generation traceable from AION source to target output.
+- Document design decisions in the decision log before treating them as stable.
 - Keep experimental features clearly marked until they are stable.
+- Update the model when evidence contradicts an assumption, rather than
+  protecting the assumption.
 
 ## Practical Meaning for AION v0.1
 
-For the current v0.1 stage, this philosophy should lead to practical discipline:
+For the current stage, this philosophy translates into concrete discipline, and
+the milestone plan in [`MILESTONES.md`](../MILESTONES.md) tracks progress against
+it:
 
-- define a small grammar before expanding syntax;
-- build a deterministic lexer and parser;
-- represent parsed programs as an AST;
-- define a clear semantic model;
-- validate a narrow set of permissions, denials, constraints, and guarantees;
-- produce simple testable output before attempting general-purpose generation;
-- keep examples concrete enough to expose real design problems;
-- separate current behavior from future ambition.
+- **M0 — met:** a small grammar and decision log (D1–D15) before any syntax
+  expansion; concrete example specs.
+- **M1 — Implemented + Tested:** a deterministic hand-written lexer and
+  recursive-descent parser, an AST, and a pretty-printer with a stable
+  `parse → print → re-parse` round-trip over the conformance suite.
+- **M2 — next:** an explicit semantic model and static validator — the first
+  component that can say "no" (dangling references, policy conflicts, `proof`
+  rejection, `TEST` arity and the D7 decision procedure).
+- **M3–M5 — ahead:** a documented IR with round-trip preservation, then a narrow
+  first code-generation target with traceability, then AI-assisted tooling layered
+  strictly above the IR.
 
-AION should first prove that a small intent-level specification can become a validated, working implementation. Once that is real, the project can expand into larger domains with stronger evidence and better design feedback.
+AION should first prove that a small intent-level specification can become a
+validated, working implementation in one narrow domain. Once that is real, the
+project can expand into larger domains with stronger evidence and better design
+feedback — modest in claims, ambitious in direction.
