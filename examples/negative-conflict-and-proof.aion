@@ -15,7 +15,7 @@ DENY
     Operator[Auditor] -> inspect
 
 GUARANTEE proof no_unauthorized_execution
-    every ALLOW/DENY edge targets a declared ACTION
+    NO_DANGLING_EDGES
 
 TEST auditor_can_inspect
     Operator[Auditor] performs inspect(Record)

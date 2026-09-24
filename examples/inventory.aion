@@ -27,14 +27,13 @@ INVARIANT active_item_stays_active
     after adjust, Item.active unchanged
 
 CONSTRAINT shipment_within_stock
-    shipment.count <= item.quantity
+    Shipment.count <= Item.quantity
 
 GUARANTEE static inventory_edges_are_valid
-    every ALLOW/DENY edge targets a declared ACTION
-    and no (subject, action) pair appears in both ALLOW and DENY
+    NO_DANGLING_EDGES and CONFLICT_FREE
 
 GUARANTEE static inventory_has_no_dead_actions
-    every declared ACTION is reachable by some ALLOW edge
+    NO_DEAD_ACTIONS
 
 TEST picker_can_receive
     Clerk[Picker] performs receive(Item)

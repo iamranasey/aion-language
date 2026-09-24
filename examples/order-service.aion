@@ -11,10 +11,13 @@ ENTITY Order
 ENTITY Payment
     fields: [amount: int]
 
+ENTITY Refund
+    fields: [amount: int]
+
 ACTION create_order(Customer) -> Order
 ACTION pay(Customer, Order) -> Payment
 ACTION cancel(Staff[Support], Order)
-ACTION refund(Staff[Finance], Payment)
+ACTION refund(Staff[Finance], Payment) -> Refund
 
 RULE OrderPolicy
 ALLOW
@@ -32,14 +35,13 @@ INVARIANT paid_total_final
     after pay, Order.total unchanged
 
 CONSTRAINT refund_limited
-    refund.amount <= payment.amount
+    Refund.amount <= Payment.amount
 
 GUARANTEE static well_formed_policy
-    every ALLOW/DENY edge targets a declared ACTION
-    and no (subject, action) pair appears in both ALLOW and DENY
+    NO_DANGLING_EDGES and CONFLICT_FREE
 
 GUARANTEE static no_dead_actions
-    every declared ACTION is reachable by some ALLOW edge
+    NO_DEAD_ACTIONS
 
 TEST support_cannot_refund
     Staff[Support] attempts refund(Payment)

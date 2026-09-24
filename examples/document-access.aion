@@ -27,14 +27,13 @@ INVARIANT archive_is_final
     after archive, Document.archived unchanged
 
 CONSTRAINT document_size_nonnegative
-    document.size >= 0
+    Document.size >= 0
 
 GUARANTEE static document_policy_is_well_formed
-    every ALLOW/DENY edge targets a declared ACTION
-    and no (subject, action) pair appears in both ALLOW and DENY
+    NO_DANGLING_EDGES and CONFLICT_FREE
 
 GUARANTEE static document_actions_are_live
-    every declared ACTION is reachable by some ALLOW edge
+    NO_DEAD_ACTIONS
 
 TEST reader_can_read
     User[Reader] performs read(Document)

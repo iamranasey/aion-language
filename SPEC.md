@@ -52,11 +52,14 @@ ENTITY Order
 ENTITY Payment
     fields: [amount: int]
 
+ENTITY Refund
+    fields: [amount: int]
+
 # --- Actions ---
 ACTION create_order(Customer) -> Order
 ACTION pay(Customer, Order) -> Payment
 ACTION cancel(Staff[Support], Order)
-ACTION refund(Staff[Finance], Payment)
+ACTION refund(Staff[Finance], Payment) -> Refund
 
 # --- Policy ---
 RULE OrderPolicy
@@ -76,14 +79,13 @@ INVARIANT paid_total_final
     after pay, Order.total unchanged
 
 CONSTRAINT refund_limited
-    refund.amount <= payment.amount
+    Refund.amount <= Payment.amount
 
 GUARANTEE static well_formed_policy
-    every ALLOW/DENY edge targets a declared ACTION
-    and no (subject, action) pair appears in both ALLOW and DENY
+    NO_DANGLING_EDGES and CONFLICT_FREE
 
 GUARANTEE static no_dead_actions
-    every declared ACTION is reachable by some ALLOW edge
+    NO_DEAD_ACTIONS
 
 # --- Conformance ---
 TEST support_cannot_refund
@@ -98,9 +100,10 @@ TEST customer_payment_is_allowed_and_audited
 Notes on why this example is well-formed under [`GRAMMAR.md`](GRAMMAR.md):
 
 - Every edge target is a declared `ACTION`; every role and field is declared (D3, D4).
-- `DENY Customer -> refund` is an override of the broader `Staff`-level allow space without duplicating any exact pair, so it is legal under the conflict rule (D2).
-- Both guarantees are `static` and drawn from the decidable predicate catalog, so v0.1 tooling can actually check them (D5, D8). A property such as "zero unauthorized executions ever" cannot be a `static` guarantee; it would be `monitor` or `proof`, and `proof` is unsupported in v0.1.
-- The `TEST` expectations follow the D7 decision procedure: `Staff[Support]` matches no `ALLOW` for `refund`, so the scenario is `DENIED` even though no explicit `DENY` names that pair — absence of `ALLOW` means denial (D1).
+- `refund` returns a declared `Refund` entity, so the constraint compares two entity field-refs, `Refund.amount <= Payment.amount` — an `ACTION` name is never a valid operand (D13). Field-refs use the exact declared entity names and are case-sensitive (D12).
+- `DENY Customer -> refund` names a subject (`Customer`) that is unrelated to the only `ALLOW` subject for `refund` (`Staff[Finance]`), so it duplicates no exact pair and is legal under the conflict rule (D2). It is redundant under the fail-closed default (D1) but harmless, and documents intent.
+- Both guarantees are `static` and built from reserved predicate atoms (`NO_DANGLING_EDGES`, `CONFLICT_FREE`, `NO_DEAD_ACTIONS`), so v0.1 tooling can actually check them (D5, D8, D14). A property such as "zero unauthorized executions ever" has no atom and cannot be a `static` guarantee; it would be `monitor` or `proof`, and `proof` is unsupported in v0.1.
+- The `TEST` expectations follow the D7/D11 decision procedure: `Staff[Support]` matches no `ALLOW` for `refund` (the only allow is `Staff[Finance]`, a different role), so the scenario is `DENIED` even though no explicit `DENY` names that pair — absence of a matching `ALLOW` means denial (D1).
 
 ## 5. Proposed Toolchain
 
