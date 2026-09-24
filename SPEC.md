@@ -103,7 +103,9 @@ Notes on why this example is well-formed under [`GRAMMAR.md`](GRAMMAR.md):
 - `refund` returns a declared `Refund` entity, so the constraint compares two entity field-refs, `Refund.amount <= Payment.amount` — an `ACTION` name is never a valid operand (D13). Field-refs use the exact declared entity names and are case-sensitive (D12).
 - `DENY Customer -> refund` names a subject (`Customer`) that is unrelated to the only `ALLOW` subject for `refund` (`Staff[Finance]`), so it duplicates no exact pair and is legal under the conflict rule (D2). It is redundant under the fail-closed default (D1) but harmless, and documents intent.
 - Both guarantees are `static` and built from reserved predicate atoms (`NO_DANGLING_EDGES`, `CONFLICT_FREE`, `NO_DEAD_ACTIONS`), so v0.1 tooling can actually check them (D5, D8, D14). A property such as "zero unauthorized executions ever" has no atom and cannot be a `static` guarantee; it would be `monitor` or `proof`, and `proof` is unsupported in v0.1.
-- The `TEST` expectations follow the D7/D11 decision procedure: `Staff[Support]` matches no `ALLOW` for `refund` (the only allow is `Staff[Finance]`, a different role), so the scenario is `DENIED` even though no explicit `DENY` names that pair — absence of a matching `ALLOW` means denial (D1).
+- The `TEST` expectations follow the D7/D11 decision procedure: `Staff[Support]` matches no `ALLOW` for `refund` (the only allow is `Staff[Finance]`, a different role), so the scenario is `DENIED` even though no explicit `DENY` names that pair — absence of a matching `ALLOW` means denial (D1). The subject-to-parameter mapping is defined by D15.
+
+The D2/D11 *override* path (a broad `ALLOW` on a bare entity with a role-scoped `DENY` carved out for the same action) is not exercised by `OrderService` — its allow/deny pairs are across different entities. It has a dedicated witness in [`examples/role-override.aion`](examples/role-override.aion).
 
 ## 5. Proposed Toolchain
 
@@ -141,6 +143,7 @@ AION v0.1 will not attempt to:
 - require an LLM for basic parsing;
 - provide a complete production runtime;
 - automatically generate safe production systems without validation;
+- express state properties beyond two fixed idioms — one `INVARIANT` form and one `CONSTRAINT` form (this narrowness is deliberate; see D8);
 - support concurrency, distribution, data-deployment, or infrastructure modeling (deferred past v0.1, to be re-proposed with grammar entries when taken up).
 
 ## 7. Open Design Questions
