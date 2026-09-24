@@ -10,6 +10,7 @@ They are hand-checked against [`GRAMMAR.md`](../GRAMMAR.md) until the parser exi
 | `order-service.aion` | Positive | Parses; both tests pass |
 | `document-access.aion` | Positive | Parses; both tests pass |
 | `inventory.aion` | Positive | Parses; both tests pass |
+| `role-override.aion` | Positive | Parses; both tests pass. Witnesses the D2/D11 override: a bare `ALLOW` with a role-scoped `DENY` on the same action (Member allowed + audited, Suspended denied) |
 | `negative-dangling-reference.aion` | Negative | Rejects undeclared action, role, obligation, fields, and test action |
 | `negative-conflict-and-proof.aion` | Negative | Rejects the exact ALLOW/DENY conflict and unsupported `proof` guarantee |
 

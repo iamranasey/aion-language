@@ -180,7 +180,12 @@ numbered entry that references the one it supersedes.
 - **D8 — Expressions are catalogs, not free math.** Invariants and constraints
   use fixed predicate shapes; guarantees use the predicate catalog of §2. This
   trades expressiveness for decidability and honest claims. Free-form
-  expressions may be proposed later under a new decision entry.
+  expressions may be proposed later under a new decision entry. Concretely, the
+  v0.1 *state* language is exactly **two idioms wide**: `INVARIANT` has one form
+  (`after <ACTION>, <Entity>.<field> unchanged`) and `CONSTRAINT` has one form (a
+  single relational comparison of a `field-ref` against another `field-ref` or a
+  literal). This narrowness is deliberate, not a gap to be filled
+  opportunistically; every additional idiom requires its own decision entry.
 - **D9 — Deterministic grammar.** The grammar is LL(1): a declaration's kind is
   determined by its leading keyword, and no semantic information is needed to
   parse. The parser never invokes an LLM or any non-deterministic component.
@@ -218,6 +223,20 @@ numbered entry that references the one it supersedes.
   operator token `and`, parentheses, and commas and were therefore not
   unambiguously tokenizable. Adding a new checkable property requires adding a
   new reserved atom under a further decision entry.
+- **D15 — TEST subject binds the actor parameter.** An `ACTION`'s *first*
+  parameter is its **actor** — the subject that performs it. In a `TEST`
+  scenario `subject performs action(arg, ...)`, the `subject` binds to the actor
+  parameter position and the parenthesized `ident-list` binds positionally to the
+  remaining parameters. Arity is checked: one subject plus the number of
+  arguments must equal the action's parameter count, else compile error. The
+  `subject` must name a declared `ENTITY` or `ENTITY[Role]` (D3, D4) but is *not*
+  required to equal the actor parameter's declared entity or role — supplying a
+  subject the policy does not authorize is exactly how a `DENIED` test is
+  written; the ALLOWED/DENIED outcome is computed by D7/D11, never by
+  parameter type-matching. Each argument must name a declared entity compatible
+  with its parameter's declared entity. `attempts` and `performs` do not affect
+  this mapping (they are synonyms, D7). This is a parse/validate-path decision,
+  recorded here before M1 rather than left to the parser author.
 
 ---
 
@@ -255,4 +274,5 @@ checked by the v0.1 toolchain.
 
 See `SPEC.md` §4 (`OrderService`). It is the first conformance target for the
 parser: the milestone M1 parser must accept it, and the milestone M2 test
-runner must pass both of its `TEST` blocks.
+runner must pass both of its `TEST` blocks. The `role-override` example in
+`examples/` is the witness for the D2/D11 override path.
