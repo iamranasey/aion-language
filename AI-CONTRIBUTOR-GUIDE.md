@@ -226,9 +226,11 @@ they stay machine-checkable as tooling comes online:
 decision-log entries — mirror the style already used in SPEC.md §4]
 ```
 
-Prefer additions that exercise a decision or rule **not yet covered** by
-`OrderService` (see the outstanding gap: D2's role-override case is
-currently untested — that is a good first candidate).
+Prefer additions that exercise a decision or rule **not yet covered** by the
+existing suite. `OrderService` and `examples/role-override.aion` together
+already cover the D2/D11 subject-override path — the latter is the dedicated
+witness (a bare `ALLOW` shadowed by a role-scoped `DENY`) — so look for the
+*next* uncovered decision rather than re-testing that one.
 
 ---
 
@@ -268,8 +270,10 @@ The end goal — AION as a real, runtime-usable language — is reached by
 milestone discipline, not by acceleration. Concretely, the fastest safe path
 is:
 
-1. Close M0 cleanly: resolve the outstanding grammar/example contradictions,
-   add the missing D2 override test case, and lock the licensing decision.
+1. Close M0 cleanly: the grammar/example contradictions are resolved and the
+   D2 override test case now exists (`examples/role-override.aion`); the
+   remaining M0 item is the licensing decision, which is the copyright
+   holder's to make.
 2. Build M1 against exactly the current grammar — no more, no less. A parser
    that accepts more than `GRAMMAR.md` defines is a bug, not a feature.
 3. Let M2's validator be the first thing that can say "no" — this is the
