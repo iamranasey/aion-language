@@ -129,7 +129,7 @@ or `MILESTONES.md` must be checked against the other four before being
 proposed as complete. This is explicitly an M0 exit criterion, and it does
 not stop applying after M0 — treat it as a standing rule for every future
 change to any of these five files. A change that updates the grammar but
-leaves a stale example in `SPEC.md`, or that updates `MILESTONES.md`'
+leaves a stale example in `SPEC.md`, or that updates `MILESTONES.md`'s
 position without updating `README.md`'s "what exists now" list, is
 incomplete.
 
