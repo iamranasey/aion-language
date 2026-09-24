@@ -1,14 +1,25 @@
 # AION Functional Vision
 
-AION is currently at the **v0.1 experimental specification stage**. The repository defines the early language direction in [`SPEC.md`](../SPEC.md), but it does not yet contain a working lexer, parser, compiler, runtime, generator, or production implementation.
+AION is at the **v0.1 experimental stage**. The language is defined in
+[`SPEC.md`](../SPEC.md) and [`GRAMMAR.md`](../GRAMMAR.md); an **M1 syntactic
+front end** (deterministic lexer, LL(1) recursive-descent parser, AST, and
+round-trip pretty-printer) now exists under [`src/`](../src/) and is
+**Implemented** and **Tested** ([`tests/test_m1.py`](../tests/test_m1.py) passes).
+The repository does **not** yet contain a semantic validator, intermediate
+representation, compiler back end, code generator, or runtime — those are M2–M4.
+Per the status vocabulary in [`PHILOSOPHY.md`](../PHILOSOPHY.md), nothing is yet
+**Verified** or **Proven**.
 
-This document describes what a future functional version of AION could create and recommends a small first proof-of-concept that can test the core idea without overextending the project.
+This document describes what a future functional AION could create and recommends
+a narrow first proof-of-concept that tests the core idea without overextending the
+project. Everything here beyond the M1 front end is **direction, not current
+repository behavior.**
 
 ## Functional Goal
 
-A functional AION implementation should prove that a meaningful system specification can be written in AION, interpreted by deterministic tooling, validated against explicit rules, and turned into working software.
-
-The intended proof path is:
+A functional AION implementation should prove that a meaningful system
+specification can be written in AION, interpreted by deterministic tooling,
+validated against explicit rules, and turned into working software:
 
 ```text
 Specification
@@ -17,142 +28,116 @@ Specification
     -> Working software
 ```
 
-The important idea is not that AION replaces existing programming languages immediately. The important idea is that system meaning, constraints, permissions, requirements, and guarantees become structured inputs that tools can analyze before implementation details dominate the design.
+The point is not that AION replaces existing programming languages immediately.
+The point is that system meaning, constraints, permissions, requirements, and
+guarantees become structured inputs that tools can analyze *before* implementation
+details dominate the design — and, per [`PRIOR-ART.md`](../PRIOR-ART.md) §2, that
+an AI model asked to implement against an AION spec can be **mechanically checked**
+against declared intent rather than trusted on review.
 
 ## What a Functional AION Could Create
 
-A future AION toolchain may be able to generate or validate several kinds of systems. These examples are directional and should be treated as future capabilities, not current repository behavior.
+A future AION toolchain may generate or validate several kinds of systems. These
+are directional future capabilities, not current behavior, and each is subject to
+the deferrals recorded in [`SPEC.md`](../SPEC.md) §7 — notably concurrency and
+distributed systems (open question 6) and data/deployment/infrastructure shape
+(open question 7), which are **non-goals for v0.1**.
 
 ### 1. Secure Access-Control Systems
 
-AION is naturally suited to systems where roles, permissions, denials, audit requirements, and guarantees must be explicit.
+AION is naturally suited to systems where roles, permissions, denials, audit
+requirements, and guarantees must be explicit: hospital record access, internal
+enterprise tools, document-management permissions, administrative portals,
+regulated data workflows.
 
-Example domains include:
-
-- hospital record access;
-- internal enterprise tools;
-- document-management permissions;
-- administrative portals;
-- regulated data workflows.
-
-AION could express:
-
-- entities such as users, records, roles, and resources;
-- actions such as read, create, update, delete, approve, or export;
-- allow and deny policies;
-- audit requirements;
-- invariants and guarantees such as preventing unauthorized access.
-
-This domain is a strong first target because it aligns directly with the v0.1 language concepts already described in `SPEC.md`: `ENTITY`, `ACTION`, `RULE`, `ALLOW`, `DENY`, `REQUIRE`, `GUARANTEE`, `CONSTRAINT`, `INVARIANT`, and `TEST`.
+This is the strongest first target because it aligns directly with the v0.1
+vocabulary already specified and parsed: `ENTITY`, `ACTION`, `RULE`, `ALLOW`,
+`DENY`, `REQUIRE`, `GUARANTEE`, `CONSTRAINT`, `INVARIANT`, and `TEST`. Note that
+AION expresses security as **checkable properties over the declared model** —
+dangling edges, conflicting allow/deny pairs, dead actions, unwired obligations —
+not as informal prose. A phrase like "unauthorized access is impossible" is **not**
+a valid v0.1 guarantee: it names no declared construct and belongs to the
+unsupported `proof` class (D5). What AION can state today is a `static` guarantee
+such as `CONFLICT_FREE` or `NO_DEAD_ACTIONS`, evaluated over the policy model.
 
 ### 2. API and Backend Generation
 
-A future AION system could describe backend behavior at the level of domain entities, actions, validation rules, authorization policies, and expected guarantees.
+A future AION system could describe backend behavior at the level of domain
+entities, actions, validation rules, authorization policies, and expected
+guarantees, and a generator could emit a conventional backend skeleton in a target
+language such as Python — data models, API routes, request validation,
+authorization checks, audit hooks, and tests derived from AION rules.
 
-For example, an inventory system could specify products, users, administrative actions, validation constraints, and authorization rules. A generator could then produce a conventional backend skeleton in a target language such as Python.
-
-Potential generated pieces could include:
-
-- data models;
-- API routes;
-- request validation;
-- authorization checks;
-- audit hooks;
-- tests derived from AION rules.
-
-This should only be attempted after the core parser, semantic model, and validation pipeline are reliable.
+This should only be attempted after the core parser, semantic model, and validation
+pipeline are reliable (M2–M3), and it is gated by the traceability requirement in
+[`MILESTONES.md`](../MILESTONES.md) M4.
 
 ### 3. Network Policy Engine
 
-AION could eventually describe network policy at an intent level.
+AION could eventually describe network policy at an intent level: zones, services,
+allowed and denied traffic paths, management access, audit requirements, and policy
+tests — for example, that guest devices must not reach clinical systems and
+management access must be audited.
 
-Example concepts include:
-
-- network zones;
-- services;
-- allowed traffic paths;
-- denied traffic paths;
-- management access;
-- audit requirements;
-- policy tests.
-
-For example, a hospital network specification could state that guest devices must not reach clinical systems, management access must be audited, and clinical services may only communicate with approved servers.
-
-At first, this does not need to configure real infrastructure. A smaller milestone could validate policies and detect contradictions in an AION model.
+At first this needs no real infrastructure configuration; a smaller milestone could
+validate policies and detect contradictions in an AION model. Full infrastructure
+modeling depends on open question 7 and is deferred.
 
 ### 4. Workflow Engine
 
-AION may also fit workflow-heavy systems where the main concern is process correctness.
+AION may also fit workflow-heavy systems where process correctness dominates:
+approval chains, onboarding, incident response, compliance reviews, ticket routing,
+intake. AION could describe states, allowed and denied transitions, required
+approvals, audit events, and invariants such as "a request cannot be approved by the
+same user who submitted it."
 
-Example workflows include:
-
-- approval chains;
-- onboarding processes;
-- incident response;
-- compliance reviews;
-- ticket routing;
-- medical or administrative intake.
-
-AION could describe states, allowed transitions, required approvals, denied transitions, audit events, and invariants such as "a request cannot be approved by the same user who submitted it."
-
-This would require additional language design beyond the current v0.1 vocabulary, so it should remain a later exploration.
+This requires language design beyond the current v0.1 vocabulary, so it remains a
+later exploration.
 
 ### 5. Configuration and Infrastructure
 
-AION could eventually express configuration and infrastructure intent without binding the language immediately to a specific cloud provider or deployment platform.
-
-Possible targets include:
-
-- service configuration;
-- environment requirements;
-- deployment constraints;
-- infrastructure access rules;
-- security baselines;
-- generated configuration files.
-
-This area should be approached carefully. AION should not claim infrastructure safety until validation mechanisms are real and testable.
+AION could eventually express configuration and infrastructure intent without
+binding the language to a specific cloud provider or deployment platform. This area
+must be approached carefully and maps to deferred open question 7: AION should not
+claim infrastructure safety until validation mechanisms are real and testable.
 
 ### 6. AI-Agent Specification
 
-AION may eventually describe AI-agent behavior in a structured way.
-
-Potential concepts include:
-
-- allowed tools;
-- denied actions;
-- required checks;
-- escalation rules;
-- memory or data-access constraints;
-- safety invariants;
-- tests for expected agent behavior.
-
-This is a promising long-term direction because AION is designed for machine-readable intent. However, AI-agent specification should not be the first implementation target. It involves ambiguity, runtime behavior, and safety issues that require a stronger language foundation.
+AION may eventually describe AI-agent behavior structurally: allowed tools, denied
+actions, required checks, escalation rules, memory/data-access constraints, safety
+invariants, and behavior tests. This is a promising long-term direction precisely
+because AION targets machine-readable intent, but it should not be the first
+implementation target — it involves ambiguity, runtime behavior, and safety issues
+that require a stronger language foundation.
 
 ## Recommended First Proof-of-Concept: AION Secure Access System
 
-The recommended first functional vertical slice is an **AION Secure Access System**.
-
-This proof-of-concept should take a small AION source file that describes a secure access-control domain and produce a working Python application or service that enforces the specified rules.
-
-The goal is to demonstrate the full journey:
+The recommended first functional vertical slice is an **AION Secure Access
+System**: take a small AION source file describing a secure access-control domain
+and produce a working Python application that enforces the specified rules.
 
 ```text
 AION source
-    -> Lexer
-    -> Parser
-    -> AST
-    -> Semantic validator
-    -> AION IR/model
-    -> Validator/generator
-    -> Python backend
+    -> Lexer            (M1: implemented)
+    -> Parser           (M1: implemented)
+    -> AST              (M1: implemented)
+    -> Semantic model + validator   (M2)
+    -> AION IR / model              (M3)
+    -> Validator / generator        (M4)
+    -> Python backend               (M4)
     -> Working application
 ```
 
-This vertical slice is intentionally narrow. It should not attempt to generate every kind of application. It should prove that AION can represent a serious system requirement, validate it, and map it into a working implementation.
+This slice is intentionally narrow. It should not attempt to generate every kind of
+application; it should prove that AION can represent a serious requirement, validate
+it, and map it into a working implementation with full source → IR → target
+traceability.
 
 ## Example Proof-of-Concept Scope
 
-A small first system could model hospital record access:
+A small first system could model hospital record access. The following is written
+in the **current v0.1 grammar exactly** so it parses under the M1 front end and will
+validate under M2:
 
 ```aion
 SYSTEM HospitalAccess
@@ -161,112 +146,122 @@ ENTITY User
     roles: [Doctor, Nurse, Admin]
 
 ENTITY PatientRecord
+    fields: [id: int]
 
-ACTION READ
-ACTION DELETE
+ACTION read_record(User, PatientRecord)
+ACTION delete_record(User[Admin], PatientRecord)
 
-RULE PatientRecordAccess
-
+RULE RecordAccess
 ALLOW
-    Doctor -> READ PatientRecord
-    Nurse -> READ PatientRecord
-
+    User[Doctor] -> read_record
+    User[Nurse] -> read_record
+    User[Admin] -> delete_record
 DENY
-    Nurse -> DELETE PatientRecord
-    unauthorized -> PatientRecord
-
+    User[Nurse] -> delete_record
 REQUIRE
-    every_access -> AUDIT
+    read_record -> AUDIT
+    delete_record -> AUDIT
 
-GUARANTEE
-    unauthorized_access == 0
+GUARANTEE static well_formed_policy
+    NO_DANGLING_EDGES and CONFLICT_FREE and NO_DANGLING_OBLIGATIONS
+
+GUARANTEE static no_dead_actions
+    NO_DEAD_ACTIONS
+
+TEST nurse_cannot_delete
+    User[Nurse] attempts delete_record(PatientRecord)
+    EXPECT DENIED
+
+TEST doctor_read_is_audited
+    User[Doctor] performs read_record(PatientRecord)
+    EXPECT ALLOWED, AUDIT
 ```
 
-The first implementation could validate this specification and generate a simple Python backend with:
+Why this is well-formed under the current grammar (and how an earlier informal
+sketch in this file was wrong):
 
-- role definitions;
-- resource definitions;
-- authorization checks;
-- deny-rule enforcement;
-- audit logging hooks;
-- tests for allowed and denied access cases.
+- **Subjects are entities, optionally role-scoped** — `User[Nurse]`, not a bare
+  role name like `Nurse` or `Doctor` (roles are declared inside an `ENTITY`, they
+  are not standalone subjects).
+- **Edges target declared actions** — `User[Doctor] -> read_record`, not
+  `Doctor -> READ PatientRecord`. The resource is carried by the action's
+  parameters (`read_record(User, PatientRecord)`), not appended to the edge.
+- **`REQUIRE` obligations name declared actions** — `read_record -> AUDIT`, not an
+  undeclared `every_access -> AUDIT`.
+- **`GUARANTEE` has a class, a name, and catalog atoms** — `GUARANTEE static
+  well_formed_policy NO_DANGLING_EDGES and CONFLICT_FREE`, not a free expression
+  like `unauthorized_access == 0`. The predicate atoms are reserved (D14); free
+  English or arithmetic is rejected.
+- **Denial is fail-closed (D1).** `User[Nurse] -> delete_record` is already denied
+  because `delete_record`'s only `ALLOW` is scoped to `User[Admin]`; the explicit
+  `DENY` documents intent and demonstrates the role-override shape (D2/D11) rather
+  than changing the outcome. The `TEST` expectations follow the D7/D15 decision
+  procedure.
 
-The proof-of-concept should prefer clarity and traceability over broad feature coverage. Every generated behavior should be explainable from the AION source.
+The first implementation could validate this specification and generate a simple
+Python backend with role definitions, resource definitions, authorization checks,
+deny-rule enforcement, audit-logging hooks, and tests for the allowed and denied
+cases. It should prefer clarity and traceability over feature coverage: every
+generated behavior must be explainable from the AION source.
 
 ## Vertical Architecture
 
-The first functional architecture should stay deterministic and inspectable.
+The first functional architecture stays deterministic and inspectable.
 
-### AION Source
-
-The human-authored `.aion` file defines the system, entities, actions, rules, permissions, requirements, guarantees, invariants, and tests.
-
-### Lexer
-
-The lexer converts source text into tokens. This should be deterministic and should not require an LLM.
-
-### Parser
-
-The parser converts tokens into a structured syntax tree according to the current grammar.
-
-### AST
-
-The abstract syntax tree represents the parsed AION program before deeper semantic interpretation.
-
-### Semantic Validator
-
-The semantic validator checks that referenced entities, roles, actions, and resources exist; that rules are structurally valid; and that unsupported constructs are rejected clearly.
-
-### AION IR / Model
-
-The intermediate representation should capture the meaning of the source program in a normalized form suitable for validation, testing, and generation.
-
-### Validator / Generator
-
-The validator/generator should inspect the AION model, report contradictions or unsupported features, and generate a target implementation only when the model is valid enough for the selected backend.
-
-### Python Backend
-
-Python is a practical first backend because it is readable, testable, and fast to prototype. The generated Python implementation should be small and transparent.
-
-### Working Application
-
-The final output should be a runnable application or service that demonstrates the specified access-control behavior with tests.
+- **AION Source** — the human-authored `.aion` file: system, entities, actions,
+  rules, permissions, requirements, guarantees, invariants, and tests.
+- **Lexer / Parser / AST (M1, implemented)** — deterministic tokenization and
+  LL(1) parsing into an AST, with a pretty-printer that round-trips
+  `parse → print → re-parse`. No LLM anywhere in this path (D9).
+- **Semantic Validator (M2)** — checks that referenced entities, roles, actions,
+  and fields exist; that rules are structurally valid and conflict-free; that
+  `proof`-class guarantees are rejected; and that `TEST` scenarios resolve under
+  the D7 decision procedure.
+- **AION IR / Model (M3)** — a normalized representation of the source's meaning,
+  suitable for validation, testing, and generation, with round-trip preservation.
+- **Validator / Generator (M4)** — inspects the model, reports contradictions or
+  unsupported features, and generates a target implementation only when the model is
+  valid for the selected backend, emitting a source → IR → target traceability map.
+- **Python Backend / Working Application** — a small, transparent, runnable service
+  demonstrating the specified behavior with tests. Python is a practical first
+  backend: readable, testable, fast to prototype.
 
 ## Engineering Discipline
 
-AION should prove its core idea with a small, rigorous implementation before expanding into many domains.
+AION should prove its core idea with a small, rigorous implementation before
+expanding. The first implementation should: keep the grammar small; implement a
+deterministic lexer and parser; define an explicit AST and intermediate model;
+validate a limited but meaningful subset; generate a small Python backend; include
+tests connecting AION source to generated behavior; avoid claims of formal
+verification until verification mechanisms exist; and clearly mark experimental
+behavior.
 
-The first implementation should:
-
-- keep the grammar small;
-- implement a deterministic lexer and parser;
-- define an explicit AST and intermediate model;
-- validate a limited but meaningful subset of the language;
-- generate a small Python backend;
-- include tests that connect AION source to generated behavior;
-- avoid claims of formal verification until verification mechanisms exist;
-- clearly mark experimental behavior.
-
-Expansion into API generation, workflow systems, infrastructure, network policy, and AI-agent specification should come after the first secure access-control slice works end-to-end.
+Expansion into API generation, workflow systems, infrastructure, network policy,
+and AI-agent specification comes only after the first secure access-control slice
+works end-to-end.
 
 ## Current Status Versus Future Direction
 
-Current v0.1 status:
+Current status (v0.1):
 
-- AION is an experimental specification.
-- The syntax and semantics are not frozen.
-- The repository does not yet provide a compiler, runtime, or generator.
-- Examples are design exploration.
+- The language constructs and grammar are **Specified**; the syntax and semantics
+  are not frozen.
+- The **M1 front end** (lexer, parser, AST, pretty-printer) is **Implemented** and
+  **Tested** — all six `examples/*.aion` parse and round-trip; 23 tests pass.
+- There is **no semantic validator, IR, generator, or runtime yet** (M2–M4).
+- Nothing is **Verified** or **Proven**; examples remain design exploration until
+  the semantic layers catch up with the specification.
 - Security and validation concepts are goals, not proven production guarantees.
 
 Future direction:
 
-- deterministic parsing and semantic analysis;
-- explicit intermediate representation;
-- validation for permissions, denials, requirements, guarantees, invariants, and tests;
-- targeted code generation;
+- semantic analysis and static validation (M2);
+- an explicit intermediate representation with round-trip preservation (M3);
+- targeted code generation with traceability (M4);
 - small working systems generated from AION source;
-- possible AI-assisted tooling layered on top of deterministic compiler foundations.
+- AI-assisted tooling layered strictly above the deterministic IR (M5).
 
-The project should remain modest in claims while being ambitious in direction: AION should first show that intent-level specifications can become validated, working software in one narrow domain. Once that is real, the language can expand with stronger evidence and better design feedback.
+The project should remain modest in claims while ambitious in direction: AION
+should first show that intent-level specifications can become validated, working
+software in one narrow domain. Once that is real, the language can expand with
+stronger evidence and better design feedback.

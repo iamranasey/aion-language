@@ -167,10 +167,20 @@ Current repository layout:
 ├── AI-CONTRIBUTOR-GUIDE.md  # Binding rules for AI-assisted contributions
 ├── PRIOR-ART.md   # Prior-art assessment + differentiation thesis (§2 adopted)
 ├── LICENSE        # Proprietary license notice
+├── docs/          # Extended companion docs (see below)
 ├── examples/      # OrderService + conformance suite specs (M0 seed)
 ├── src/           # M1 front end: lexer, parser, AST, pretty-printer
 ├── tests/         # M1 parse + round-trip tests over examples/
 └── .gitignore
+```
+
+The `docs/` directory holds extended companion material that must stay consistent
+with the core docs above:
+
+```text
+docs/
+├── DEVELOPMENT-PHILOSOPHY.md  # Extended companion to PHILOSOPHY.md (root wins on conflict)
+└── FUNCTIONAL-VISION.md       # Future functional direction + first proof-of-concept scope
 ```
 
 Expected future layout:
@@ -178,7 +188,7 @@ Expected future layout:
 ```text
 .
 ├── src/            # + semantic model and validator (M2)
-├── docs/           # Design notes, IR schema (M3)
+├── docs/           # + design notes, IR schema (M3)
 └── tools/          # Developer utilities and experiments
 ```
 
