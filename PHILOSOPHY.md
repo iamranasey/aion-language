@@ -20,6 +20,14 @@ The goal is not to deny that real systems are complex. The goal is to represent 
 
 A good AION model should make a system easier to inspect, reason about, validate, explain, and implement. If AION only makes a system shorter to write but not clearer to understand, it has missed its purpose.
 
+## Differentiation and Prior Art
+
+AION is not a claim that its syntax beats mature neighbors — Rego/OPA and Cedar for authorization policy, TLA+/Alloy/Dafny for formal specification, Gherkin for readable scenarios. For authorization policy alone, those tools are mature and often the better choice today, and these docs should not imply otherwise. The full neighbor-by-neighbor assessment lives in [`PRIOR-ART.md`](PRIOR-ART.md); the load-bearing bet is:
+
+> AION's bet is not that humans should specify systems in a new syntax instead of Rego, Cedar, or TLA+ — for policy alone, those are mature and often the better choice today. AION's bet is that as AI models take on more implementation work, there needs to be a substrate where an AI's output can be mechanically checked against declared intent rather than trusted on review — and that substrate needs decidable guarantees, fail-closed policy semantics, and generation traceability as load-bearing features, not add-ons. Whether that substrate needs to be a new language at all, versus a discipline layered on existing tools, is an open question this project treats as falsifiable rather than assumed.
+
+This is consistent with **Verification Before Trust** and **Evidence Over Assumption** below: the differentiation claim is stated as *falsifiable*, and the milestones that would validate or refute it — M4 generation traceability and M5 AI tooling gated behind deterministic validation — are the evidence to watch. One difference is already true rather than aspirational: a `TEST` block's `EXPECT` is evaluated by the D7 decision procedure over the declared policy model, not by hand-written glue code (contrast Gherkin). Beyond that, the thesis is direction, not demonstrated capability — per the status vocabulary it is **Specified**, not Implemented, Tested, Verified, or Proven.
+
 ## Foundations
 
 AION is guided by three foundations, chosen because they offer *methods*, not metaphors. Each foundation must earn its place by showing up in a concrete design decision (recorded in [`GRAMMAR.md`](GRAMMAR.md)); borrowing terminology without a decision is not allowed.

@@ -20,6 +20,12 @@ AION is designed around these ideas:
 - AI systems may assist with reasoning, mapping, and generation, but core parsing should remain deterministic.
 - AION should describe meaning before target implementation technology is chosen.
 
+## Positioning and Prior Art
+
+AION is not a claim that its syntax beats mature neighbors — Rego/OPA and Cedar for authorization policy, TLA+/Alloy/Dafny for formal specification, Gherkin for readable scenarios. For authorization policy alone, those tools are mature and often the better choice today. AION's bet is narrower and falsifiable: as AI models take on more implementation work, there needs to be a substrate where an AI's output can be *mechanically checked* against declared intent rather than trusted on review — one where decidable guarantees, fail-closed policy semantics, and generation traceability are load-bearing features, not add-ons. Whether that substrate must be a new language at all, versus a discipline layered on existing tools, is treated as an open question rather than assumed.
+
+The full neighbor-by-neighbor assessment is in [`PRIOR-ART.md`](PRIOR-ART.md); the adopted positioning statement lives in [`PHILOSOPHY.md`](PHILOSOPHY.md). This is direction, not demonstrated capability — per the status vocabulary, the thesis is **Specified**, and the milestones that would validate or refute it are M4 (generation traceability) and M5 (AI tooling gated behind deterministic validation).
+
 ## Current Status
 
 AION is in the earliest public project stage.
@@ -31,6 +37,7 @@ What exists now:
 - A milestone plan with explicit exit criteria in [`MILESTONES.md`](MILESTONES.md).
 - A development philosophy in [`PHILOSOPHY.md`](PHILOSOPHY.md).
 - An AI contributor guide in [`AI-CONTRIBUTOR-GUIDE.md`](AI-CONTRIBUTOR-GUIDE.md), binding on AI-assisted contributions once merged.
+- A prior-art and differentiation thesis in [`PRIOR-ART.md`](PRIOR-ART.md); its §2 positioning is adopted in this README and in [`PHILOSOPHY.md`](PHILOSOPHY.md), while its §3 M4 reframe remains a proposal.
 - One normative example (`OrderService`, in `SPEC.md`) that doubles as the first conformance target.
 
 What does not exist yet:
@@ -156,6 +163,7 @@ Current repository layout:
 ├── MILESTONES.md  # Milestone plan with exit criteria
 ├── PHILOSOPHY.md  # Development philosophy and status vocabulary
 ├── AI-CONTRIBUTOR-GUIDE.md  # Binding rules for AI-assisted contributions
+├── PRIOR-ART.md   # Prior-art assessment + differentiation thesis (§2 adopted)
 ├── LICENSE        # Proprietary license notice
 └── .gitignore
 ```
