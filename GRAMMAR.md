@@ -19,8 +19,18 @@ string     = '"' , { any-character-except-'"' } , '"' ;
 comment    = "#" , { any-character-except-newline } , newline ;
 ```
 
-- Keywords are uppercase and reserved: `SYSTEM ENTITY ACTION RULE ALLOW DENY
-  REQUIRE GUARANTEE CONSTRAINT INVARIANT TEST`.
+- Declaration keywords are uppercase and reserved: `SYSTEM ENTITY ACTION RULE
+  ALLOW DENY REQUIRE GUARANTEE CONSTRAINT INVARIANT TEST`.
+- Context keywords are reserved where they appear: `roles fields int bool
+  string after unchanged and or not attempts performs EXPECT ALLOWED DENIED
+  AUDIT static monitor proof`. `ident`s are case-sensitive, so a reserved word
+  and an identifier that differ only in case are distinct tokens; a reserved
+  word may not be reused as a declared name.
+- Guarantee predicate atoms are uppercase and reserved (see the catalog in §2):
+  `NO_DANGLING_EDGES CONFLICT_FREE NO_DANGLING_OBLIGATIONS NO_DEAD_ACTIONS
+  NO_DANGLING_STATE_REFS`. They are single tokens; the punctuation and the word
+  `and` that appeared inside the old English predicate phrases are gone, so an
+  atom can never be confused with a boolean operator or a grouping parenthesis.
 - Whitespace and newlines are insignificant. Declarations are recognized by
   their leading keyword (the grammar is LL(1)); no semicolons or braces.
 - `#` starts a comment to end of line.
@@ -66,18 +76,26 @@ obligation    = "AUDIT" ;
 
 (* ---- Invariants ---- *)
 invariant-decl = "INVARIANT" , ident , invariant-pred ;
-invariant-pred = "after" , ident , "," , ident , "." , ident , "unchanged" ;
+invariant-pred = "after" , ident , "," , field-ref , "unchanged" ;
                (* after <ACTION>, <Entity>.<field> unchanged *)
 
 (* ---- Constraints ---- *)
 constraint-decl = "CONSTRAINT" , ident , comparison ;
-comparison      = ident , "." , ident , rel-op , value ;
+comparison      = field-ref , rel-op , ( field-ref | value ) ;
+field-ref       = ident , "." , ident ;  (* <Entity>.<field>; both must be
+                                            declared, exact case — see D12/D13 *)
 rel-op          = "==" | "!=" | "<" | "<=" | ">" | ">=" ;
 value           = integer | "true" | "false" | string ;
 
 (* ---- Guarantees ---- *)
 guarantee-decl  = "GUARANTEE" , guarantee-class , ident , guarantee-pred ;
 guarantee-class = "static" | "monitor" | "proof" ;
+guarantee-pred  = pred-expr ;
+pred-expr       = pred-term , { ( "and" | "or" ) , pred-term } ;
+pred-term       = [ "not" ] , ( pred-atom | "(" , pred-expr , ")" ) ;
+pred-atom       = "NO_DANGLING_EDGES" | "CONFLICT_FREE"
+                | "NO_DANGLING_OBLIGATIONS" | "NO_DEAD_ACTIONS"
+                | "NO_DANGLING_STATE_REFS" ;
 
 (* ---- Tests ---- *)
 test-decl   = "TEST" , ident , scenario , "EXPECT" , expectation ;
@@ -88,21 +106,24 @@ expectation = ("ALLOWED" | "DENIED") , [ "," , "AUDIT" ] ;
 
 ### Guarantee predicates (v0.1 catalog)
 
-Guarantees do not take arbitrary expressions in v0.1. They are boolean
-combinations (`and`, `or`, `not`, parentheses) of a fixed set of decidable
-predicates over the semantic model:
+Guarantees do not take arbitrary expressions in v0.1. A `guarantee-pred` is a
+boolean combination (`and`, `or`, `not`, parentheses) of a fixed set of reserved
+predicate **atoms** over the semantic model. Each atom is a single uppercase
+token, so the parser never has to distinguish predicate prose from operators:
 
-| Predicate | Meaning |
+| Atom | Meaning |
 | --- | --- |
-| `every ALLOW/DENY edge targets a declared ACTION` | No dangling policy edge |
-| `no (subject, action) pair appears in both ALLOW and DENY` | Policy is conflict-free |
-| `every REQUIRE obligation targets a declared ACTION` | No dangling obligation |
-| `every declared ACTION is reachable by some ALLOW edge` | No dead actions |
-| `every INVARIANT and CONSTRAINT references declared fields` | No dangling state predicate |
+| `NO_DANGLING_EDGES` | Every `ALLOW`/`DENY` edge targets a declared `ACTION` |
+| `CONFLICT_FREE` | No `(subject, action)` pair appears in both `ALLOW` and `DENY` at the same specificity (D2, D11) |
+| `NO_DANGLING_OBLIGATIONS` | Every `REQUIRE` obligation targets a declared `ACTION` |
+| `NO_DEAD_ACTIONS` | Every declared `ACTION` is reachable by some effective `ALLOW` (D11) |
+| `NO_DANGLING_STATE_REFS` | Every `INVARIANT` and `CONSTRAINT` field-ref names a declared entity and field (D12, D13) |
+
+Example: `GUARANTEE static well_formed_policy NO_DANGLING_EDGES and CONFLICT_FREE`.
 
 Restricting guarantees to a predicate catalog keeps them **decidable by
-construction** — the semantic model is finite, each predicate is a total
-function over it, and evaluation terminates.
+construction** — the semantic model is finite, each atom is a total function
+over it, and evaluation terminates.
 
 ---
 
@@ -114,16 +135,18 @@ numbered entry that references the one it supersedes.
 - **D1 — Fail-closed default.** Absence of an `ALLOW` edge means denial. A
   request is permitted only if an `ALLOW` edge matches and no `DENY` edge
   matches. There is no implicit allow.
-- **D2 — Conflicts are compile errors.** If the same `(subject, action)` pair
-  appears in both `ALLOW` and `DENY` within a `RULE`, compilation fails. `DENY`
-  is an explicit override for pairs that would otherwise be allowed by a
-  broader subject (e.g., `Staff` allowed, `Staff[Finance]` denied); it is not a
-  tie-breaker. Resolution rule: a `DENY` on `Entity[Role]` overrides an `ALLOW`
-  on the bare `Entity` *only* when the pair differs after role expansion;
-  exact-pair duplication is an error. This is checked statically.
-- **D3 — No dangling references.** Policy edges, obligations, invariant fields,
-  and constraint fields must name declared `ACTION`s, entities, roles, and
-  fields. Undeclared names are compile errors, not warnings.
+- **D2 — Conflicts are compile errors (superseded in part by D11).** A conflict
+  is an *exact* `(subject, action)` pair that appears in both `ALLOW` and `DENY`
+  within a `RULE` at the *same specificity* (D11); compilation fails on such a
+  pair. A `DENY` whose subject differs from the `ALLOW` subject — e.g. a bare
+  `Entity` deny against a role-qualified `Entity[Role]` allow, or vice versa —
+  is **not** a conflict; it is resolved deterministically by the specificity
+  ordering in D11. This entry replaces the earlier "DENY overrides ALLOW only
+  when the pair differs after role expansion" wording, which left the
+  broad-DENY / narrow-ALLOW direction undefined.
+- **D3 — No dangling references.** Policy edges, obligations, invariant
+  field-refs, and constraint field-refs must name declared `ACTION`s, entities,
+  roles, and fields. Undeclared names are compile errors, not warnings.
 - **D4 — Roles and fields are declared, not inferred.** `roles:` and `fields:`
   are optional entity attributes. Referencing an undeclared role or field is a
   compile error (D3).
@@ -138,14 +161,22 @@ numbered entry that references the one it supersedes.
   Enforcement path: static check that the obligation is wired through the IR,
   and target-level check that generated code emits the audit event. `AUDIT` is
   the only obligation in v0.1.
-- **D7 — TEST blocks are executable.** A `TEST` is a conformance scenario
-  evaluated against the *policy model* (subjects, actions, ALLOW/DENY/REQUIRE),
-  not against generated code. Decision procedure for `subject attempts action`:
-  1. If a `DENY` edge matches the pair → `DENIED`.
-  2. Else if an `ALLOW` edge matches → `ALLOWED` (plus `AUDIT` if a `REQUIRE`
-     obligation covers the action).
-  3. Else → `DENIED` (D1). `attempts` and `performs` are syntactic synonyms;
-  they exist so tests read naturally for both negative and positive cases.
+- **D7 — TEST blocks are executable (decision procedure updated by D11).** A
+  `TEST` is a conformance scenario evaluated against the *policy model*
+  (subjects, actions, ALLOW/DENY/REQUIRE), not against generated code. Decision
+  procedure for `subject attempts action`:
+  1. Gather every `ALLOW`/`DENY` edge whose subject *matches* the request
+     subject and whose action is `action`. A request `Entity[Role]` matches an
+     edge subject `Entity[Role]` (specificity 2) or bare `Entity`
+     (specificity 1); a request bare `Entity` matches only bare `Entity`.
+  2. If no edge matches → `DENIED` (D1, fail-closed).
+  3. Otherwise pick the matching edge(s) of **highest specificity** (D11). If
+     that set contains both an `ALLOW` and a `DENY`, it is an exact-pair
+     conflict → compile error (D2), not a runtime outcome.
+  4. If the highest-specificity edge is `DENY` → `DENIED`; if `ALLOW` →
+     `ALLOWED` (plus `AUDIT` if a `REQUIRE` obligation covers the action).
+  `attempts` and `performs` are syntactic synonyms; they exist so tests read
+  naturally for both negative and positive cases.
 - **D8 — Expressions are catalogs, not free math.** Invariants and constraints
   use fixed predicate shapes; guarantees use the predicate catalog of §2. This
   trades expressiveness for decidability and honest claims. Free-form
@@ -155,6 +186,38 @@ numbered entry that references the one it supersedes.
   parse. The parser never invokes an LLM or any non-deterministic component.
 - **D10 — Versioning of this document.** Any grammar change merged without a
   decision-log entry is invalid and should be rejected in review.
+- **D11 — Subject specificity resolves ALLOW vs DENY.** A role-qualified
+  subject `Entity[Role]` has specificity 2; a bare `Entity` has specificity 1.
+  When both an `ALLOW` and a `DENY` match a request, the edge with the *higher
+  specificity* wins, regardless of whether it is `ALLOW` or `DENY`. Thus
+  `ALLOW User[Admin] -> archive` beats `DENY User -> archive` for an Admin,
+  while the same `DENY User -> archive` still denies every non-Admin `User`.
+  Equal-specificity `ALLOW`+`DENY` on the identical pair is the exact-pair
+  conflict of D2 (compile error). An `ALLOW` edge that is shadowed for *all*
+  possible request subjects by a higher-specificity `DENY` is **not** effective
+  and does not satisfy `NO_DEAD_ACTIONS`. This removes the D2/D7 ambiguity for
+  the broad-DENY / narrow-ALLOW direction the v0.1 examples rely on.
+- **D12 — Field references are case-sensitive and use the declared name.** A
+  `field-ref` is `<Entity>.<field>` where `<Entity>` is the exact declared
+  entity identifier and `<field>` is a field declared on it. There is no
+  implicit lower-casing, pluralization, or aliasing: `payment.amount` does not
+  refer to `ENTITY Payment`, and is a dangling reference (D3). Invariants and
+  constraints use the same `field-ref` shape and the same casing rule.
+- **D13 — Constraint operands are entity fields, not action results.** Both
+  sides of a `comparison` are `field-ref`s (or a `field-ref` and a literal
+  `value`). An `ACTION` name is never a valid operand. If a value produced by an
+  action must be constrained, model it as a **result entity**: give the action a
+  `-> ResultEntity` return and declare the carried fields on that entity, then
+  constrain `ResultEntity.field`. (This is why the normative `refund` example
+  declares a `Refund` entity rather than writing `refund.amount`.)
+- **D14 — Guarantee predicates are reserved atoms.** A `guarantee-pred` is a
+  boolean combination of the reserved atoms cataloged in §2
+  (`NO_DANGLING_EDGES`, `CONFLICT_FREE`, `NO_DANGLING_OBLIGATIONS`,
+  `NO_DEAD_ACTIONS`, `NO_DANGLING_STATE_REFS`), not free English prose. This
+  supersedes the earlier prose-phrase catalog, whose phrases embedded the
+  operator token `and`, parentheses, and commas and were therefore not
+  unambiguously tokenizable. Adding a new checkable property requires adding a
+  new reserved atom under a further decision entry.
 
 ---
 
