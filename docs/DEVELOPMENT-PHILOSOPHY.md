@@ -105,10 +105,13 @@ are not interchangeable:
 - **Proven** — a formal proof exists under clearly stated assumptions.
 
 Applied to the current repository: the **language constructs and grammar are
-Specified**; the **M1 front end** (lexer, parser, AST, pretty-printer, under
-[`src/`](../src/)) is **Implemented** and — because [`tests/test_m1.py`](../tests/test_m1.py)
-passes — **Tested**; **nothing is yet Verified or Proven** (no checking mechanism
-beyond the parse→print→re-parse round-trip, and no proof backend exists in
+Specified**; the **M1 front end** (lexer, parser, AST, pretty-printer) and the
+**M2 semantic validator** (symbol tables, dangling-reference and conflict
+detection, static guarantee checks, and the `TEST` interpreter, under
+[`src/`](../src/)) are **Implemented** and — because [`tests/test_m1.py`](../tests/test_m1.py)
+and [`tests/test_m2.py`](../tests/test_m2.py) pass — **Tested**; **nothing is yet
+Verified or Proven** (the M2 validator checks *specs*, not the toolchain
+implementation against formal properties, and no proof backend exists in
 v0.1–M4). Claims must never be stated a level above what they have earned.
 
 ## Verification Before Trust
@@ -170,9 +173,12 @@ it:
 - **M1 — Implemented + Tested:** a deterministic hand-written lexer and
   recursive-descent parser, an AST, and a pretty-printer with a stable
   `parse → print → re-parse` round-trip over the conformance suite.
-- **M2 — next:** an explicit semantic model and static validator — the first
-  component that can say "no" (dangling references, policy conflicts, `proof`
-  rejection, `TEST` arity and the D7 decision procedure).
+- **M2 — Implemented + Tested:** an explicit semantic model and static validator
+  — the first component that can say "no" (dangling references, policy conflicts
+  and role-override resolution, `proof` rejection, static guarantee evaluation,
+  `TEST` arity and the D7 decision procedure). The four positive conformance
+  specs validate clean with every `TEST` meeting its expectation; the two
+  negative specs produce exactly their intended diagnostics.
 - **M3–M5 — ahead:** a documented IR with round-trip preservation, then a narrow
   first code-generation target with traceability, then AI-assisted tooling layered
   strictly above the IR.

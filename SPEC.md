@@ -169,6 +169,6 @@ Breaking language changes require an appropriate specification version change an
 
 AION v0.1 is an experimental research and engineering specification. The syntax and semantics are not yet frozen.
 
-Per the status vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the language constructs and grammar are **Specified**. The M1 syntactic front end (lexer, parser, AST, pretty-printer) in [`src/`](src/) is **Implemented** and — because its round-trip and parse tests pass — **Tested**. No part of the toolchain is yet **Verified** or **Proven**: semantic validation, the `TEST` interpreter, and the static guarantee checks are **M2** and do not exist yet, and there is no verification backend in v0.1–M4.
+Per the status vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the language constructs and grammar are **Specified**. The M1 syntactic front end (lexer, parser, AST, pretty-printer) and the M2 semantic validator (symbol tables, dangling-reference and conflict detection, static guarantee checks, and the `TEST` interpreter) in [`src/`](src/) are **Implemented** and — because their round-trip, parse, and validation tests pass — **Tested**. No part of the toolchain is yet **Verified** or **Proven**: the M2 validator checks *specs*, not the toolchain implementation against formal properties, and there is no verification backend in v0.1–M4 (so `proof`-class guarantees are rejected as unsupported).
 
 All design decisions must be recorded in [`GRAMMAR.md`](GRAMMAR.md) before they become part of the stable language core.
