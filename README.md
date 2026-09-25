@@ -40,18 +40,18 @@ What exists now:
 - A prior-art and differentiation thesis in [`PRIOR-ART.md`](PRIOR-ART.md); its §2 positioning is adopted in this README and in [`PHILOSOPHY.md`](PHILOSOPHY.md), while its §3 M4 reframe remains a proposal.
 - One normative example (`OrderService`, in `SPEC.md`) that doubles as the first conformance target.
 - An **M1 syntactic front end** in [`src/`](src/): a hand-written deterministic lexer, LL(1) recursive-descent parser, AST, and pretty-printer with a stable `parse → print → re-parse` round-trip. All six `examples/*.aion` specs parse and round-trip; see [`src/README.md`](src/README.md) and [`tests/`](tests/).
+- An **M2 semantic validator** in [`src/`](src/): symbol tables, dangling-reference detection (D3), policy-conflict detection with role-override resolution (D2/D11), the five static guarantee atoms (D5/D14), and a `TEST` interpreter implementing the D7 decision procedure. The four positive `examples/*.aion` specs validate clean with every `TEST` evaluating to its stated expectation; the two negative specs produce exactly their intended diagnostics; see [`tests/test_m2.py`](tests/test_m2.py).
 
 What does not exist yet:
 
-- A semantic model or validator (dangling references, conflicts, `proof` rejection, `TEST` arity — all **M2**).
-- A compiler, interpreter, or `TEST` runner.
+- A compiler, code generator, or runtime. (The M2 `TEST` interpreter decides scenarios against the policy model; it does not execute generated code — that is M4.)
 - A finalized type system beyond the v0.1 primitives.
 - An intermediate representation (**M3**).
-- Formal verification support (`proof`-class guarantees have no backend).
+- Formal verification support (`proof`-class guarantees have no backend; validation rejects them as unsupported).
 - Production code generation (**M4**).
 - A standard library or runtime.
 
-Per the status vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the language constructs are **Specified**; the M1 front end (lexer, parser, pretty-printer) is **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) passes — **Tested**. Nothing is yet **Verified** (no checking mechanism against formal properties beyond the round-trip) or **Proven** (no proof backend exists in v0.1–M4). Examples should be treated as design exploration until the semantic layers catch up with the specification.
+Per the status vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the language constructs are **Specified**; the M1 front end and the M2 validator are **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) and [`tests/test_m2.py`](tests/test_m2.py) pass — **Tested**. Nothing is yet **Verified** (no checking mechanism against formal properties beyond the round-trip and the conformance suite) or **Proven** (no proof backend exists in v0.1–M4). Examples should be treated as design exploration until the later toolchain layers catch up with the specification.
 
 ## Example Syntax
 
@@ -169,8 +169,8 @@ Current repository layout:
 ├── LICENSE        # Proprietary license notice
 ├── docs/          # Extended companion docs (see below)
 ├── examples/      # OrderService + conformance suite specs (M0 seed)
-├── src/           # M1 front end: lexer, parser, AST, pretty-printer
-├── tests/         # M1 parse + round-trip tests over examples/
+├── src/           # M1 front end + M2 semantic validator
+├── tests/         # M1 parse/round-trip + M2 validation tests over examples/
 └── .gitignore
 ```
 
@@ -187,7 +187,7 @@ Expected future layout:
 
 ```text
 .
-├── src/            # + semantic model and validator (M2)
+├── src/            # + IR and lowering (M3), code-generation target (M4)
 ├── docs/           # + design notes, IR schema (M3)
 └── tools/          # Developer utilities and experiments
 ```
@@ -226,7 +226,7 @@ Good contribution areas include:
 - Reviewing and improving [`GRAMMAR.md`](GRAMMAR.md) (with decision-log entries).
 - Writing conformance specs for the M0 suite (well-formed and deliberately broken ones).
 - Designing the IR schema for M3.
-- Building the M2 semantic validator (the M1 parser and pretty-printer are in place under [`src/`](src/)).
+- Extending the M2 semantic validator (the M1 front end and M2 validator are in place under [`src/`](src/)) — e.g. new guarantee atoms, each requiring its own decision-log entry.
 - Writing documentation that separates current behavior from future plans.
 
 Before contributing implementation code, align changes with [`SPEC.md`](SPEC.md) and [`GRAMMAR.md`](GRAMMAR.md), and keep experimental behavior clearly labeled.

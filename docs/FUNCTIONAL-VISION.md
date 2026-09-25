@@ -3,17 +3,20 @@
 AION is at the **v0.1 experimental stage**. The language is defined in
 [`SPEC.md`](../SPEC.md) and [`GRAMMAR.md`](../GRAMMAR.md); an **M1 syntactic
 front end** (deterministic lexer, LL(1) recursive-descent parser, AST, and
-round-trip pretty-printer) now exists under [`src/`](../src/) and is
-**Implemented** and **Tested** ([`tests/test_m1.py`](../tests/test_m1.py) passes).
-The repository does **not** yet contain a semantic validator, intermediate
-representation, compiler back end, code generator, or runtime — those are M2–M4.
+round-trip pretty-printer) and an **M2 semantic validator** (symbol tables,
+dangling-reference and conflict detection, static guarantee evaluation, and a
+`TEST` interpreter) now exist under [`src/`](../src/) and are **Implemented** and
+**Tested** ([`tests/test_m1.py`](../tests/test_m1.py) and
+[`tests/test_m2.py`](../tests/test_m2.py) pass).
+The repository does **not** yet contain an intermediate representation, compiler
+back end, code generator, or runtime — those are M3–M4.
 Per the status vocabulary in [`PHILOSOPHY.md`](../PHILOSOPHY.md), nothing is yet
 **Verified** or **Proven**.
 
 This document describes what a future functional AION could create and recommends
 a narrow first proof-of-concept that tests the core idea without overextending the
-project. Everything here beyond the M1 front end is **direction, not current
-repository behavior.**
+project. Everything here beyond the M1–M2 front end and validator is **direction,
+not current repository behavior.**
 
 ## Functional Goal
 
@@ -68,8 +71,9 @@ guarantees, and a generator could emit a conventional backend skeleton in a targ
 language such as Python — data models, API routes, request validation,
 authorization checks, audit hooks, and tests derived from AION rules.
 
-This should only be attempted after the core parser, semantic model, and validation
-pipeline are reliable (M2–M3), and it is gated by the traceability requirement in
+This should only be attempted after the IR and generation layers are reliable
+(M3–M4) — the parser (M1) and semantic validator (M2) are already in place — and
+it is gated by the traceability requirement in
 [`MILESTONES.md`](../MILESTONES.md) M4.
 
 ### 3. Network Policy Engine
@@ -121,7 +125,7 @@ AION source
     -> Lexer            (M1: implemented)
     -> Parser           (M1: implemented)
     -> AST              (M1: implemented)
-    -> Semantic model + validator   (M2)
+    -> Semantic model + validator   (M2: implemented)
     -> AION IR / model              (M3)
     -> Validator / generator        (M4)
     -> Python backend               (M4)
@@ -136,8 +140,9 @@ traceability.
 ## Example Proof-of-Concept Scope
 
 A small first system could model hospital record access. The following is written
-in the **current v0.1 grammar exactly** so it parses under the M1 front end and will
-validate under M2:
+in the **current v0.1 grammar exactly** so it parses under the M1 front end and
+validates clean under the M2 validator (both `TEST` blocks resolve to their stated
+expectations):
 
 ```aion
 SYSTEM HospitalAccess
@@ -213,10 +218,11 @@ The first functional architecture stays deterministic and inspectable.
 - **Lexer / Parser / AST (M1, implemented)** — deterministic tokenization and
   LL(1) parsing into an AST, with a pretty-printer that round-trips
   `parse → print → re-parse`. No LLM anywhere in this path (D9).
-- **Semantic Validator (M2)** — checks that referenced entities, roles, actions,
-  and fields exist; that rules are structurally valid and conflict-free; that
-  `proof`-class guarantees are rejected; and that `TEST` scenarios resolve under
-  the D7 decision procedure.
+- **Semantic Validator (M2, implemented)** — checks that referenced entities,
+  roles, actions, and fields exist; that rules are structurally valid and
+  conflict-free (with role-override resolution, D2/D11); that `proof`-class
+  guarantees are rejected; that static guarantee atoms are evaluated; and that
+  `TEST` scenarios resolve under the D7 decision procedure.
 - **AION IR / Model (M3)** — a normalized representation of the source's meaning,
   suitable for validation, testing, and generation, with round-trip preservation.
 - **Validator / Generator (M4)** — inspects the model, reports contradictions or
@@ -247,15 +253,21 @@ Current status (v0.1):
 - The language constructs and grammar are **Specified**; the syntax and semantics
   are not frozen.
 - The **M1 front end** (lexer, parser, AST, pretty-printer) is **Implemented** and
-  **Tested** — all six `examples/*.aion` parse and round-trip; 23 tests pass.
-- There is **no semantic validator, IR, generator, or runtime yet** (M2–M4).
-- Nothing is **Verified** or **Proven**; examples remain design exploration until
-  the semantic layers catch up with the specification.
+  **Tested** — all six `examples/*.aion` parse and round-trip.
+- The **M2 semantic validator** (symbol tables, dangling-reference and conflict
+  detection, static guarantee evaluation, and the `TEST` interpreter) is
+  **Implemented** and **Tested** — the four positive specs validate clean with
+  every `TEST` meeting its expectation, and the two negative specs produce exactly
+  their intended diagnostics. 63 tests pass across `tests/test_m1.py` and
+  `tests/test_m2.py`.
+- There is **no IR, generator, or runtime yet** (M3–M4).
+- Nothing is **Verified** or **Proven**; the M2 validator checks *specs*, not the
+  toolchain implementation against formal properties, and examples remain design
+  exploration until the generation layers catch up with the specification.
 - Security and validation concepts are goals, not proven production guarantees.
 
 Future direction:
 
-- semantic analysis and static validation (M2);
 - an explicit intermediate representation with round-trip preservation (M3);
 - targeted code generation with traceability (M4);
 - small working systems generated from AION source;

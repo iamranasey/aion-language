@@ -108,7 +108,7 @@ AION documentation and tooling distinguish levels of confidence:
 - **Verified** — a defined checking mechanism confirms the implementation satisfies explicit properties within a stated scope.
 - **Proven** — a formal proof exists under clearly stated assumptions and definitions.
 
-These terms are not interchangeable. At the v0.1 stage, the language constructs and grammar are **Specified**; the M1 front end (lexer, parser, AST, pretty-printer, under [`src/`](src/)) is **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) passes — **Tested**. Nothing is yet **Verified** (no checking mechanism against formal properties beyond the parse→print→re-parse round-trip) or **Proven** (no proof backend exists in v0.1–M4).
+These terms are not interchangeable. At the v0.1 stage, the language constructs and grammar are **Specified**; the M1 front end (lexer, parser, AST, pretty-printer, under [`src/`](src/)) and the M2 semantic validator (symbol tables, dangling-reference and conflict detection, guarantee evaluation, and the `TEST` interpreter) are **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) and [`tests/test_m2.py`](tests/test_m2.py) pass — **Tested**. Nothing is yet **Verified**: the M2 validator is a checking mechanism for *AION specs*, not a defined check that the *toolchain implementation* satisfies explicit formal properties (the round-trip and conformance tests establish Tested, not Verified). Nothing is **Proven** (no proof backend exists in v0.1–M4; `proof`-class guarantees are rejected as unsupported).
 
 ## Guidance for Language and Toolchain Design
 

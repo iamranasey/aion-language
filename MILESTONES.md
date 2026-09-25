@@ -4,11 +4,18 @@ This plan replaces the open-ended roadmap. Each milestone has explicit **exit
 criteria**; a milestone is not "done" when the code is written, but when the
 criteria are demonstrably met (tests, artifacts, or recorded results).
 
-Current position: M1 complete — the deterministic front end (lexer, parser,
-AST, round-trip pretty-printer) is implemented and tested on `main`
-(`tests/test_m1.py`, 23 passing). M0's exit criteria are met (GRAMMAR.md with
-D1–D15, six example specs, open questions 1–2 answered, docs cross-checked).
-Next: M2 — semantic model and static validation.
+Current position: M2 complete — the semantic model and static validator
+(symbol tables, dangling-reference detection, policy-conflict detection with
+role-override resolution, the five static guarantee atoms, and the D7 `TEST`
+interpreter) are implemented and tested on this branch (`tests/test_m2.py`;
+63 tests pass across M1+M2). The four positive conformance specs validate clean
+with every `TEST` meeting its stated expectation; the two negative specs produce
+exactly their intended diagnostics. M1 (deterministic front end) and M0 remain
+complete on `main`. Next: M3 — intermediate representation.
+
+> Note: this "Current position" line is a status marker advanced as part of the
+> M2 PR for reviewer visibility; it is not an edit to any milestone's exit
+> criteria. Merge is gated on explicit maintainer authorization.
 
 ---
 
