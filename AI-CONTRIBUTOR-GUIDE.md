@@ -306,14 +306,15 @@ The end goal — AION as a real, runtime-usable language — is reached by
 milestone discipline, not by acceleration. Concretely, the fastest safe path
 is:
 
-1. Close M0 cleanly: the grammar/example contradictions are resolved and the
-   D2 override test case now exists (`examples/role-override.aion`); the
-   remaining M0 item is the licensing decision, which is the copyright
-   holder's to make.
-2. Build M1 against exactly the current grammar — no more, no less. A parser
-   that accepts more than `GRAMMAR.md` defines is a bug, not a feature.
-3. Let M2's validator be the first thing that can say "no" — this is the
-   actual proof the language has semantics, not just syntax.
+1. Maintain M0's completed specification baseline: the grammar, decision log,
+   and six conformance examples exist, and the copyright holder has adopted
+   MIT in `LICENSE`. Keep the documentation consistent as the project evolves.
+2. Preserve M1's implemented and tested front end: lexer, parser, AST, and
+   round-trip pretty-printer. A parser that accepts more than `GRAMMAR.md`
+   defines is a bug, not a feature.
+3. Build M2 next: semantic validation and the `TEST` interpreter must reject
+   invalid models and evaluate valid scenarios according to the decision log.
+   These components are not yet implemented; M1 checks syntax only.
 4. Resist adding a second code-generation target until M4's first target
    fully round-trips with a traceability report. Breadth before depth here
    will produce two half-working backends instead of one working one.

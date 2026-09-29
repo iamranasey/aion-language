@@ -142,7 +142,7 @@ The pipeline is: source → lexer → parser → AST → semantic model → vali
 | **attempts / performs** | Syntactic synonyms in a scenario. They exist so tests read naturally for negative and positive cases. | D7, D15 |
 | **subject binding** | In a `TEST`, the subject binds to the action's actor parameter and the argument list binds positionally to the rest. Arity is checked. The subject need not match the actor's declared type, because that mismatch is how a `DENIED` test is written. | D15 |
 | **conformance suite (seed)** | The set of example specs in `examples/` used to check the tools. The M0 suite is the seed. | MILESTONES M0, examples/README |
-| **normative example** | An example that is part of the specification: `OrderService` in `SPEC.md` §4, byte-identical to `examples/order-service.aion`. | SPEC §4 |
+| **normative example** | An example that is part of the specification: `OrderService` in `SPEC.md` §4. It produces the same AST as `examples/order-service.aion`; the specification includes additional section comments. | SPEC §4 |
 | **positive spec** | A conformance spec that should parse, validate, and pass its tests. | examples/README |
 | **negative spec** | A deliberately broken conformance spec that must produce the intended diagnostics, no more and no fewer. | examples/README, M2 |
 | **witness** | A specific example that demonstrates a decision working. `examples/role-override.aion` is the witness for D2/D11. | GRAMMAR §5 |

@@ -57,7 +57,9 @@ Exit criteria:
 - All five static guarantee predicates from `GRAMMAR.md` §2 implemented;
   failing guarantees are compile errors.
 - A `TEST` interpreter implementing the D7 decision procedure; every `TEST`
-  block in the conformance suite evaluates to its stated expectation.
+  block in the semantically valid positive conformance specs evaluates to its
+  stated expectation. Invalid negative specs are checked for validation
+  diagnostics, not successful `TEST` evaluation.
 - Negative conformance specs (deliberately broken inputs) each produce exactly
   the intended diagnostic — no false positives, no silent passes.
 
