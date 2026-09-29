@@ -33,6 +33,8 @@ The v0.1 vocabulary:
 
 The concrete syntax, the guarantee predicate catalog, and the decision log live in [`GRAMMAR.md`](GRAMMAR.md) and are part of this specification.
 
+For definitions of the terms used in this specification, see [`GLOSSARY.md`](GLOSSARY.md). The glossary is non-normative: on any disagreement, this specification and [`GRAMMAR.md`](GRAMMAR.md) win.
+
 ## 4. Normative Example
 
 `OrderService` is the v0.1 conformance example: every construct above appears in it, and the milestone M1 parser must accept it while the M2 test runner must pass both of its `TEST` blocks.

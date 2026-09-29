@@ -166,13 +166,16 @@ Current repository layout:
 ├── PHILOSOPHY.md  # Development philosophy and status vocabulary
 ├── AI-CONTRIBUTOR-GUIDE.md  # Binding rules for AI-assisted contributions
 ├── PRIOR-ART.md   # Prior-art assessment + differentiation thesis (§2 adopted)
-├── LICENSE        # Proprietary license notice
+├── GLOSSARY.md    # Definitions of terms used across the docs (non-normative)
+├── LICENSE        # MIT License
 ├── docs/          # Extended companion docs (see below)
 ├── examples/      # OrderService + conformance suite specs (M0 seed)
 ├── src/           # M1 front end: lexer, parser, AST, pretty-printer
 ├── tests/         # M1 parse + round-trip tests over examples/
 └── .gitignore
 ```
+
+New to the terminology? [`GLOSSARY.md`](GLOSSARY.md) defines the terms used across these documents. It is non-normative: if it disagrees with the decision log, milestones, spec, or philosophy, those documents win.
 
 The `docs/` directory holds extended companion material that must stay consistent
 with the core docs above:
@@ -235,6 +238,6 @@ AI-assisted contributions (any model or agent) must follow [`AI-CONTRIBUTOR-GUID
 
 ## License
 
-AION is currently proprietary software. All rights are reserved unless explicit written permission is granted by the copyright holder. See [LICENSE](LICENSE) for details.
+AION is released under the [MIT License](LICENSE). Copyright (c) 2026 Duah-Okity Ranasey.
 
-**Open recommendation (not yet acted on):** an all-rights-reserved license suppresses exactly the experimentation — alternate implementations, playgrounds, forks — that an experimental language needs to evolve. If adoption and external validation are goals, consider MIT/Apache-2.0 for code and CC BY 4.0 for the specification, or a staged approach (proprietary until M2, then open). This is the copyright holder's decision; the LICENSE file is unchanged until it is made.
+The license applies to the whole repository: the source code under [`src/`](src/), the tests, the examples, and the specification and design documents. Anyone may use, copy, modify, merge, publish, distribute, sublicense, and sell copies, provided the copyright notice and permission notice are kept in copies or substantial portions. The software and documents are provided "as is", without warranty of any kind. See [LICENSE](LICENSE) for the full text.

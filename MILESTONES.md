@@ -7,7 +7,7 @@ criteria are demonstrably met (tests, artifacts, or recorded results).
 Current position: M1 complete — the deterministic front end (lexer, parser,
 AST, round-trip pretty-printer) is implemented and tested on `main`
 (`tests/test_m1.py`, 23 passing). M0's exit criteria are met (GRAMMAR.md with
-D1–D15, six example specs, open questions 1–2 answered, docs cross-checked).
+D1–D15, six example specs, open questions 1–2 answered, docs cross-checked, licensing decided: MIT).
 Next: M2 — semantic model and static validation.
 
 ---
@@ -26,8 +26,10 @@ Exit criteria:
   `SPEC.md` are answered at v0.1 scope: minimal primitive types and entity/role
   references only; everything else deferred — and the deferral is recorded.
 - `README.md`, `SPEC.md`, `GRAMMAR.md`, and `PHILOSOPHY.md` cross-checked for
-  contradiction; the current licensing status and open recommendation are
-  recorded, with any license change left to the copyright holder.
+  contradiction; the licensing question is decided and recorded. **Resolved:**
+  the copyright holder adopted the MIT License for the repository (see
+  `LICENSE` and the License section of `README.md`), replacing the earlier
+  proprietary notice.
 
 ## M1 — Parser and AST
 
