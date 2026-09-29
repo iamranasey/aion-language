@@ -4,7 +4,10 @@ This document is the working grammar for AION v0.1 and the decision log that
 records *why* the grammar is shaped this way. Every design decision here is
 binding for the v0.1 parser unless superseded by a later logged decision.
 
-Status per `PHILOSOPHY.md`: **Specified**, not yet **Implemented**.
+Status per `PHILOSOPHY.md`: the grammar and semantics are **Specified**.
+The M1 syntactic front end in `src/` is **Implemented** and **Tested** by
+`tests/test_m1.py`. Semantic validation and `TEST` evaluation are planned for
+M2 and are not yet implemented. Nothing is yet **Verified** or **Proven**.
 
 ---
 

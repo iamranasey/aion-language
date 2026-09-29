@@ -40,6 +40,18 @@ AION is guided by three foundations, chosen because they offer *methods*, not me
 
 Other disciplines — systems theory, information theory, control theory, linguistics, and others — may inform future work, but they are inspirations, not design inputs, until a decision-log entry demonstrates their relevance. Breadth is not a foundation.
 
+### Secondary Influence: Computer Graphics
+
+Computer graphics is recorded here as a *precedent and tooling influence*, not a foundation. It does not appear in the table above because no decision-log entry yet depends on it, and it informs none of the open semantic questions (ALLOW/DENY resolution, guarantee decidability, the M4 target, AI-generation verifiability). Specifically, only these parts of the field are considered relevant:
+
+- **Restricted domain-specific languages.** Shader languages (GLSL, HLSL, WGSL) trade generality for predictability, compiling to a constrained target. This is a design precedent for AION's decidable GUARANTEE predicates.
+- **Declarative scene description.** Formats such as SVG and USD state what should exist and leave realization to a separate engine, which parallels AION's split between intent and implementation.
+- **Staged pipelines.** Well-defined stage inputs and outputs are a precedent for the milestone structure (parse, validate, test, compile).
+- **Visualization.** Layered graph-layout techniques could render entities, rules, and actions so that conflicts and shadowing become visible. This is a possible toolchain feature, not a specified one.
+- **Reference-output testing.** Golden-image comparison is a precedent for the conformance examples and TEST suites.
+
+Like every other inspiration, this influence is promoted to a design input only when a decision-log entry in [`GRAMMAR.md`](GRAMMAR.md) demonstrates it. Expanding AION to express rendering or UI intent would be a scope change requiring its own decision entry first.
+
 ## Core Principles
 
 ### Intent Before Implementation

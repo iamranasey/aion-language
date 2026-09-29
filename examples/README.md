@@ -1,9 +1,14 @@
 # AION v0.1 Conformance Seed
 
 These files are the M0 conformance seed described by [`MILESTONES.md`](../MILESTONES.md).
-They are hand-checked against [`GRAMMAR.md`](../GRAMMAR.md) until the parser exists.
+All six specs parse and round-trip through the implemented M1 front end,
+as checked by [`tests/test_m1.py`](../tests/test_m1.py). The negative specs
+are syntactically valid; their defects require M2 semantic validation.
 
-## Expected results
+## Expected M2 results (not yet implemented)
+
+The table describes the planned validator and `TEST` interpreter outcomes.
+Passing the M1 parser tests does not establish these semantic results.
 
 | File | Class | Expected result |
 | --- | --- | --- |
@@ -11,7 +16,7 @@ They are hand-checked against [`GRAMMAR.md`](../GRAMMAR.md) until the parser exi
 | `document-access.aion` | Positive | Parses; both tests pass |
 | `inventory.aion` | Positive | Parses; both tests pass |
 | `role-override.aion` | Positive | Parses; both tests pass. Witnesses the D2/D11 override: a bare `ALLOW` with a role-scoped `DENY` on the same action (Member allowed + audited, Suspended denied) |
-| `negative-dangling-reference.aion` | Negative | Rejects undeclared action, role, obligation, fields, and test action |
+| `negative-dangling-reference.aion` | Negative | Rejects undeclared policy action, role, obligation target action, state references, and test action |
 | `negative-conflict-and-proof.aion` | Negative | Rejects the exact ALLOW/DENY conflict and unsupported `proof` guarantee |
 
 The negative files intentionally contain more than one independent defect. A

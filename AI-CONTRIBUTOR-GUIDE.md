@@ -57,6 +57,11 @@ yet, resolve in this order:
    anything the other four don't already support. If it does, that's a
    defect to fix, not a source to cite.
 
+`GLOSSARY.md` is **not** part of this hierarchy. It is non-normative: it
+explains vocabulary and decides nothing. If it disagrees with any of the five
+documents above, the glossary is wrong and gets corrected; never cite it to
+settle a question.
+
 **If a task requires a decision not covered by any of the above:** do not
 invent one and proceed. Write it up as a proposed decision-log entry (see
 §6) and stop there. An unresolved open question is a valid deliverable; a
@@ -139,6 +144,37 @@ incomplete.
 whether something is allowed by the current spec, grammar, or milestone
 scope, treat it as *not allowed* and ask, rather than treating silence as
 permission to proceed.
+
+---
+
+### 3.8 Keep `GLOSSARY.md` in sync with the documents it explains
+`GLOSSARY.md` duplicates definitions that live elsewhere, so it drifts unless
+every change that affects vocabulary updates it in the same contribution.
+Update it whenever a change:
+
+- adds, renames, or removes a keyword, construct, or predicate atom;
+- adds a decision-log entry (`D[N]`) that introduces or redefines a term;
+- changes a term's meaning, for example a new specificity rule or guarantee
+  class behavior;
+- changes a milestone's name, goal, or the status of a tool the glossary
+  describes as planned (for example, a component moving from "planned for M2"
+  to **Implemented**);
+- adds or changes a status-vocabulary term, or records a new foundation or
+  secondary influence in `PHILOSOPHY.md`.
+
+Rules for the update itself:
+
+- Every entry keeps a **Source** pointing at the document and section that
+  defines it (for example `D11` or `SPEC §3`). An entry with no source is
+  invented vocabulary and must not be added.
+- The glossary never claims a higher status than the evidence supports. Use
+  the same status words, and mark unbuilt tools as planned. Glossary status
+  inflation is still status inflation (§3.1).
+- A term introduced by a decision-log entry is not complete until its glossary
+  entry exists. Treat a missing entry as part of the same defect as a
+  missing cross-document check (§3.6).
+- If you cannot tell whether a change affects vocabulary, treat it as
+  affecting it and check (§3.7).
 
 ---
 
@@ -270,14 +306,15 @@ The end goal — AION as a real, runtime-usable language — is reached by
 milestone discipline, not by acceleration. Concretely, the fastest safe path
 is:
 
-1. Close M0 cleanly: the grammar/example contradictions are resolved and the
-   D2 override test case now exists (`examples/role-override.aion`); the
-   remaining M0 item is the licensing decision, which is the copyright
-   holder's to make.
-2. Build M1 against exactly the current grammar — no more, no less. A parser
-   that accepts more than `GRAMMAR.md` defines is a bug, not a feature.
-3. Let M2's validator be the first thing that can say "no" — this is the
-   actual proof the language has semantics, not just syntax.
+1. Maintain M0's completed specification baseline: the grammar, decision log,
+   and six conformance examples exist, and the copyright holder has adopted
+   MIT in `LICENSE`. Keep the documentation consistent as the project evolves.
+2. Preserve M1's implemented and tested front end: lexer, parser, AST, and
+   round-trip pretty-printer. A parser that accepts more than `GRAMMAR.md`
+   defines is a bug, not a feature.
+3. Build M2 next: semantic validation and the `TEST` interpreter must reject
+   invalid models and evaluate valid scenarios according to the decision log.
+   These components are not yet implemented; M1 checks syntax only.
 4. Resist adding a second code-generation target until M4's first target
    fully round-trips with a traceability report. Breadth before depth here
    will produce two half-working backends instead of one working one.
@@ -303,4 +340,6 @@ of well-meaning pressure that produces the anti-patterns in §8.
 - [ ] Conformance examples still parse against the current grammar exactly
       as written (not "should probably" — actually checked, field by field)
 - [ ] All five core docs re-checked for new contradictions
+- [ ] `GLOSSARY.md` updated for any new, renamed, or redefined term, each entry
+      with a source and no status stronger than the evidence
 - [ ] Scope explicitly stated, including what was deliberately left out
