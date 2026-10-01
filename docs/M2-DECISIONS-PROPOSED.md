@@ -4,7 +4,7 @@ Status: **ADOPTED by maintainer instruction on 2026-10-01.**
 A–D are recorded as GRAMMAR D16–D19. E's design gate and scope boundary are
 recorded as D20; no concrete runtime state model is adopted. The filename is
 retained for existing links. The original options and recommendations below
-are historical rationale; GRAMMAR is authoritative. M2 remains unimplemented.
+are historical rationale; GRAMMAR is authoritative. M2 checks are implemented and locally tested on the PR branch.
 
 ## A. Denial and specificity (clarification of D1/D11)
 
@@ -72,7 +72,7 @@ proposed; no new target capability is claimed here.
 ## Approval and implementation sequence
 
 A–D are recorded in D16–D19 and the state-design gate in D20. SPEC, GLOSSARY,
-and conformance expectations are synchronized before M2 implementation. Build symbol tables,
-reference/type diagnostics, conflict detection, the five predicates, and the D7
-interpreter in that order. Publish positive and negative vectors for each adopted
-rule. E needs a separate design review before a state-aware target is implemented.
+and conformance expectations are synchronized with the M2 implementation. Symbol
+tables, reference/type diagnostics, global conflicts, predicates, and TEST evaluation
+are implemented. Published regression vectors live in tests/fixtures/m2-conformance.json;
+additional decision coverage lives in tests/test_m2_decisions.py. E needs a separate design review before a state-aware target is implemented.

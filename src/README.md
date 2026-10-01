@@ -1,77 +1,58 @@
-# AION front end — `src/`
+# AION front end and M2 validator
 
-## Host language (M1 exit criterion: "chosen and recorded")
+Python 3, standard-library runtime only. Python 3.10–3.14 is the configured CI
+range; local tests run on CPython 3.12. Parsing and validation are deterministic
+and contain no LLM or network calls (D9).
 
-The M1 parser is implemented in **Python 3** (developed and tested on CPython
-3.14; no third-party dependencies — standard library only). This follows the
-recommendation recorded in [`MILESTONES.md`](../MILESTONES.md) M1: Python for
-iteration speed, with the AST/IR defined language-agnostically so a later Rust
-rewrite is a reimplementation, not a redesign of the semantics.
+## Implemented scope
 
-Determinism note (D9, guide §3.3): the parse path is fully deterministic. There
-is no LLM, embedding, network call, or other non-deterministic component
-anywhere in `lexer.py`, `parser.py`, or `printer.py`.
+M1 provides lexer, parser, structural AST, and canonical pretty-printer. M2 adds
+all declaration namespaces (D18), forward reference resolution, dangling-reference
+checks, global conflicts and specificity (D16/D17), five static guarantee atoms,
+proof rejection, comparison typing and TEST bindings (D19), and TEST evaluation.
+D20 limits state checks to references/types. Monitor instrumentation, runtime state,
+IR, code generation, and proof backends are not implemented.
 
-## Scope — what this is and is not
+M1 and M2 are **Implemented** and **Tested**, not **Verified** or **Proven**.
 
-This is the **M1** deliverable only: a syntactic front end. It lexes, parses to
-an AST, and pretty-prints with a stable `parse → print → re-parse` round-trip.
+## API
 
-It deliberately does **not** perform semantic validation. The following are
-**M2** and are intentionally absent rather than stubbed (guide §3.4, §8):
+- `parse_text(text)` and `parse_file(path)` return structural ASTs.
+- `parse_with_locations(text)` returns ParsedSource with `.spec` and `.span_for(node)`.
+- `pretty_print(spec)` produces canonical source.
+- `validate(spec_or_parsed_source)` returns all diagnostics in deterministic pass order.
+- `validate_or_raise(...)` raises AionSemanticError with the diagnostic list.
+- `build_validated_model(...)` rejects validation errors and returns SemanticModel.
+- `SemanticModel.build(spec)` is low-level construction returning `(model, duplicates)`;
+  it does not validate. Its `symbols` maps every declaration namespace. `decide`
+  analyzes a declared subject/action; it is not a security boundary. Revalidate
+  after mutations. TEST checks are performed by validate.
 
-- dangling-reference checks (D3),
-- policy-conflict detection and role-override resolution (D2/D11),
-- rejection of `proof`-class guarantees from the stable core (D5) — at M1 the
-  `proof` class *parses* for forward compatibility,
-- `TEST` arity / actor-binding checks (D15),
-- evaluation of the static guarantee predicates and the `TEST` decision
-  procedure (D7).
+Diagnostics have `code`, `where`, `message`, and optional `span`. Passing ParsedSource
+attaches declaration ranges where names are unambiguous. Duplicate declaration
+locators retain no span rather than inventing a source location. Ranges have one-based
+start coordinates and exclusive ends; metadata does not affect AST equality.
+Predicate atoms use their enclosing term range in the parser source map.
 
-Status per [`PHILOSOPHY.md`](../PHILOSOPHY.md): the parser is **Implemented**
-and, because `tests/test_m1.py` passes, **Tested**. It is **not Verified** (no
-defined checking mechanism against formal properties beyond the round-trip) and
-**not Proven** (no proof artifact exists in v0.1–M4).
+## Modules
 
-## Layout
-
-```text
-src/aion/
-├── __init__.py     # public API: parse_text, parse_file, pretty_print, errors
-├── errors.py       # AionError / AionLexError / AionSyntaxError (line + column)
-├── lexer.py        # GRAMMAR.md §1: tokens with 1-based line/column
-├── ast_nodes.py    # GRAMMAR.md §2: structural mirror of the EBNF (no positions)
-├── parser.py       # LL(1) recursive descent over the token stream (D9)
-├── printer.py      # canonical pretty-printer (round-trip target)
-└── __main__.py     # `python -m aion <file.aion> [--print]` dev driver
-```
+`lexer.py`, `parser.py`, `ast_nodes.py`, and `printer.py` implement M1.
+`source_map.py` retains optional ranges; `errors.py` holds front-end exceptions.
+`semantic.py` builds symbols/policy graph and evaluates predicates/decisions.
+`validate.py` checks references/types/guarantees/tests; `diagnostics.py` defines
+semantic diagnostic records. `__main__.py` provides the installed CLI.
 
 ## Running
 
-From the repository root:
-
 ```sh
-# tests (parse + round-trip over examples/*.aion, negative-syntax, lexer)
+python -m pip install .
+aion examples/order-service.aion
+aion examples/order-service.aion --print
+aion examples/negative-dangling-reference.aion --no-validate
 python -m unittest discover -s tests -v
-
-# parse a single spec and report round-trip stability
-PYTHONPATH=src python -m aion examples/order-service.aion
-PYTHONPATH=src python -m aion examples/order-service.aion --print
 ```
 
-Errors are reported as `line:column: message`, naming the expected construct.
-
-## Source locations and diagnostics
-
-`parse_with_locations(text)` returns a `ParsedSource` with `.spec` and
-`.span_for(node)`. Ranges use one-based line/column coordinates and exclusive
-ends. Production nodes (declarations, policy blocks, edges, references, literals,
-scenarios, and predicate expressions/terms) retain locations; an inline predicate
-atom uses its enclosing term's location. Metadata is outside AST equality and
-belongs only to that original parse. `parse_text` and `parse_file` still return
-structural ASTs. Token end coordinates do not participate in token equality.
-
-Front-end exceptions expose `.code`: AION1001 (lexical) or AION1002 (syntax).
-The installed `aion` CLI also reports AION1003 (file/encoding) and AION1004
-(interpreter processing limit). See `docs/RELEASING.md` for exit codes.
-Source maps prepare for useful M2 diagnostics; no semantic checks are added.
+Validation is on by default. Exit 0 means no diagnostics, exit 1 input/semantic
+failure, exit 2 usage error. Front-end codes AION1001–AION1004 and semantic codes
+are documented in docs/RELEASING.md and diagnostics.py. Semantic errors with source
+locations print `path:line:column: DECLARATION name: [code] message`.

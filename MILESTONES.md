@@ -4,13 +4,14 @@ This plan replaces the open-ended roadmap. Each milestone has explicit **exit
 criteria**; a milestone is not "done" when the code is written, but when the
 criteria are demonstrably met (tests, artifacts, or recorded results).
 
-Current position: M1 complete — the deterministic front end (lexer, parser,
-AST, round-trip pretty-printer) is implemented and tested
-(`tests/test_m1.py` and `tests/test_engineering.py`; see `docs/CONFORMANCE.md`). M0's exit criteria are met (GRAMMAR.md with
-D1–D20, six example specs, open questions 1–2 answered, docs cross-checked, licensing decided: MIT).
-Next: M2 — semantic model and static validation under adopted D16–D20.
-`docs/M2-DECISIONS-PROPOSED.md` records their adoption; runtime state semantics
-remain deferred under D20. Adopting decisions does not complete M2.
+Current position: M2 is implemented and locally tested on this PR branch under
+D16–D20; maintainer review and remote CI remain the merge gates. The suite covers
+M1 parsing/round trips, M2 conformance, namespace uniqueness, global conflicts,
+comparison typing, and TEST bindings (see `docs/CONFORMANCE.md`). The four positive
+seed specs pass and the two negative specs report their expected six/two diagnostics.
+M0 and M1 remain complete. After M2 acceptance, next: M3 — intermediate representation.
+Runtime state enforcement remains deferred under D20; no IR or code generation exists.
+
 
 ---
 

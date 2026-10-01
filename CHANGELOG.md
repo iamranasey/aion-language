@@ -11,5 +11,9 @@
 - Add bounded generated conformance checks, documented-example checks, source-range
   tests, and a configured Python 3.10–3.14 CI matrix across three operating systems.
 - Clarify assurance claims, security scope, and release/conformance procedures.
-- Adopt M2 semantic decisions D16–D20; no semantic validator or TEST
-  evaluator is included. There is no published release or certification claim.
+- Implement the adopted M2 semantic decisions D16–D20: global conflicts, all
+  declaration namespaces, strict comparison types, and TEST binding checks.
+- Validate by default in the CLI; `--no-validate` retains parse-only behavior.
+- Add semantic diagnostic codes and optional declaration source ranges, a
+  validated-model factory, and published conformance vectors.
+- No runtime state enforcement, published release, or certification is claimed.

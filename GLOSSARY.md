@@ -121,10 +121,10 @@ The pipeline is: source → lexer → parser → AST → semantic model → vali
 
 | Term | Meaning | Source |
 | --- | --- | --- |
-| **semantic model** | The checked representation of a spec: symbol tables plus resolved references, on which validation and `TEST` evaluation run. Planned for M2. | SPEC §5, M2 |
+| **semantic model** | The checked representation of a spec: symbol tables plus resolved references, on which validation and `TEST` evaluation run. Implemented and Tested in M2. | SPEC §5, M2 |
 | **symbol table** | A lookup of declared entities, roles, fields, actions, and rules. | M2 |
 | **validation** | Static checks over the semantic model: dangling references, conflicts, and static guarantees. | M2 |
-| **diagnostic** | A compiler message reporting a problem, with line and column where applicable. M1 exposes lexical/syntax error codes; semantic diagnostics are planned for M2. | M1, M2, src/README |
+| **diagnostic** | A compiler message reporting a problem, with line and column where applicable. M1 exposes lexical/syntax error codes; M2 exposes semantic codes and optional declaration source ranges. | M1, M2, src/README |
 | **source span** | Original source coordinates with a one-based start and exclusive end, retained outside structural AST equality through `parse_with_locations`. | src/README |
 | **IR (intermediate representation)** | A stable, documented, serializable form between the semantic model and code generators. Planned for M3. | M3 |
 | **lowering** | Converting the semantic model into the IR. | M3 |

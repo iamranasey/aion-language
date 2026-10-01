@@ -31,7 +31,7 @@ novelty, exclusive capability, patentability, or superiority.
 ### 1.1 Rego / OPA and Cedar
 
 AION's policy examples overlap with established authorization tools. Its
-current six examples demonstrate syntax, not a running authorization engine.
+current six seed examples exercise parsing and model validation, not a production authorization service.
 AION's D11 specificity semantics differ from Cedar's forbid-overrides-permit
 rule, so a future translation needs explicit semantic preservation rather
 than direct keyword substitution. See [Cedar authorization semantics](https://docs.cedarpolicy.com/auth/authorization.html).
@@ -51,7 +51,7 @@ explicit tasks and measured evidence, not broad assertions about formal methods.
 ### 1.3 Gherkin / BDD
 
 AION specifies TEST outcomes through D7/D11 over its policy model. That evaluator
-is planned for M2 and is not implemented. This differs in design from scenarios
+is implemented and covered by M2 conformance tests. This differs in design from scenarios
 connected to implementation-specific step definitions, but it is not yet a
 measured usability or correctness advantage.
 

@@ -26,7 +26,7 @@ AION is not a claim that its syntax beats mature neighbors — Rego/OPA and Ceda
 
 > AION's bet is not that humans should specify systems in a new syntax instead of Rego, Cedar, or TLA+ — for policy alone, those are mature and often the better choice today. AION's bet is that as AI models take on more implementation work, there needs to be a substrate where an AI's output can be mechanically checked against declared intent rather than trusted on review — and that substrate needs decidable guarantees, fail-closed policy semantics, and generation traceability as load-bearing features, not add-ons. Whether that substrate needs to be a new language at all, versus a discipline layered on existing tools, is an open question this project treats as falsifiable rather than assumed.
 
-This is consistent with **Verification Before Trust** and **Evidence Over Assumption** below: the differentiation claim is stated as *falsifiable*, and the milestones that would validate or refute it — M4 generation traceability and M5 AI tooling gated behind deterministic validation — are the evidence to watch. One difference is *designed in* rather than aspirational: D7 specifies that a `TEST` block's `EXPECT` is to be decided by a procedure over the declared policy model, not by hand-written glue code (contrast Gherkin). But this is a decided semantic, not yet a running one — the M2 `TEST` interpreter is what makes it real, so today it is **Specified**, not Implemented. The same holds for the thesis as a whole: direction, not demonstrated capability — per the status vocabulary it is **Specified**, not Implemented, Tested, Verified, or Proven.
+This is consistent with **Verification Before Trust** and **Evidence Over Assumption** below: the differentiation claim is stated as *falsifiable*, and the milestones that would validate or refute it — M4 generation traceability and M5 AI tooling gated behind deterministic validation — are the evidence to watch. One difference is *designed in* rather than aspirational: D7 specifies that a `TEST` block's `EXPECT` is to be decided by a procedure over the declared policy model, not by hand-written glue code (contrast Gherkin). The M2 `TEST` evaluator now implements this decision procedure and is tested against the conformance suite. The same holds for the thesis as a whole: direction, not demonstrated capability — per the status vocabulary it is **Specified**, not Implemented, Tested, Verified, or Proven.
 
 ## Foundations
 
@@ -120,13 +120,14 @@ AION documentation and tooling distinguish levels of confidence:
 - **Verified** — a defined checking mechanism confirms the implementation satisfies explicit properties within a stated scope.
 - **Proven** — a formal proof exists under clearly stated assumptions and definitions.
 
-These terms are not interchangeable. At the v0.1 stage, the language constructs and grammar are **Specified**; the M1 front end (lexer, parser, AST, pretty-printer, under [`src/`](src/)) is **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) passes — **Tested**. Nothing is yet **Verified** (no checking mechanism against formal properties beyond the parse→print→re-parse round-trip) or **Proven** (no proof backend exists in v0.1–M4).
+These terms are not interchangeable. At the v0.1 stage, the language constructs and grammar are **Specified**; the M1 front end (lexer, parser, AST, pretty-printer, under [`src/`](src/)) and the M2 semantic validator (symbol tables, dangling-reference and conflict detection, guarantee evaluation, and the `TEST` interpreter) are **Implemented** and — because [`tests/test_m1.py`](tests/test_m1.py) and [`tests/test_m2.py`](tests/test_m2.py) pass — **Tested**. Nothing is yet **Verified**: the M2 validator is a checking mechanism for *AION specs*, not a defined check that the *toolchain implementation* satisfies explicit formal properties (the round-trip and conformance tests establish Tested, not Verified). Nothing is **Proven** (no proof backend exists in v0.1–M4; `proof`-class guarantees are rejected as unsupported).
 
 ## Guidance for Language and Toolchain Design
 
 The maintainer adopted D16–D20 on 2026-10-01 to make M2's policy composition,
 namespaces, comparison types, TEST bindings, and state-checking limits explicit.
-These are **Specified** decisions, not evidence of an implemented validator.
+These decisions are **Specified**; their M2 checks are **Implemented** and
+**Tested** by the conformance suite.
 The runtime state model remains a separate design gate under D20.
 
 - The language makes intent, semantics, constraints, guarantees, invariants, and tests explicit.

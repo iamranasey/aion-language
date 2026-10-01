@@ -13,8 +13,8 @@ supported phase, and exact suite. It is not a claim about arbitrary generated co
 | SPEC normative example consistency | test_engineering.ConformanceProperties.test_normative_example_structural_equivalence | Comments may differ |
 | Diagnostic source ranges | test_engineering.SourceLocations | Source positions excluded from AST equality |
 | CLI input failures | test_engineering.CommandLine | File/encoding/options/syntax errors |
-| D1–D4, D6–D8, D11–D20 semantic requirements | examples and docs/M2-DECISIONS-PROPOSED.md | Specified, including adopted D16–D20; no evaluator |
-| D5 proof rejection and monitor enforcement | src/README.md; M2/M4 plan | M1 accepts syntax only |
+| D1–D4, D6–D8, D11–D20 semantic requirements | test_m2; test_m2_decisions; tests/fixtures/m2-conformance.json | Implemented/tested over the declared model, not target execution |
+| D5 proof rejection and monitor enforcement | test_m2.TestGuaranteeAtoms | M2 rejects proof; monitor runtime enforcement remains M4 |
 | M3 IR preservation; M4 target equivalence | MILESTONES.md | Not implemented |
 
 Run `python -m unittest discover -s tests -v`. Generated property checks use
@@ -31,8 +31,9 @@ from source-tree unit tests.
 
 ### Adopted M2 acceptance expectations
 
-These are required semantic outcomes, not passing M1 assertions. The M2
-implementation must turn them into executable positive/negative vectors.
+These M2 acceptance expectations are exercised by test_m2_decisions.py and the
+published tests/fixtures/m2-conformance.json vectors. They are semantic checks,
+not M1 parsing assertions.
 
 | Case | Required outcome | Decision |
 | --- | --- | --- |
@@ -55,8 +56,9 @@ implementation must turn them into executable positive/negative vectors.
 
 ### Independent evaluator and target comparison
 
-For M2, publish machine-readable vectors with spec, request, expected decision,
-obligations, and diagnostic codes against adopted D16–D20. Ask an
+M2 publishes source/diagnostic vectors and exhaustively checks the 16 combinations
+of bare/role ALLOW/DENY edges in both RULE orders against an independent truth table.
+This is not a separate implementation by an external author. Ask an
 independent implementer to build a small evaluator from the specification alone.
 Compare decisions exhaustively over finite declared subject/action combinations.
 For M4, execute the same vectors against the generated artifact and record the
@@ -69,3 +71,6 @@ authoring time, defects detected from a published mutation set, diagnostic usefu
 latency distribution, memory use, hardware, seeds, and reproduction commands.
 Publish negative results. External review and adoption are outcomes to obtain,
 not completed tasks or prerequisites that can be simulated locally.
+
+Local validation covers the complete unit suite and installed CLI. Remote CI status
+must be checked separately before merge. Tests do not establish production readiness.

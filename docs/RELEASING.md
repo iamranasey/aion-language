@@ -23,8 +23,8 @@ migration guidance. Existing parse_text/parse_file AST equality remains structur
 Source locations are optional metadata tied to the original parse, not stable
 node identifiers across serialization or pretty-printing.
 
-CLI contract: exit 0 for successful syntactic parse and round trip; exit 1 for
-input/processing failure; exit 2 for argument misuse. `--help` exits 0. Error
+CLI contract: exit 0 for successful parse, round trip, and default M2 validation;
+`--no-validate` skips semantic validation. Exit 1 for input/processing or semantic failure; exit 2 for argument misuse. `--help` exits 0. Error
 families: AION1001 lexical, AION1002 syntax, AION1003 file/encoding, AION1004
 interpreter processing limit. These are broad families, not future M2 rule codes.
 
@@ -32,3 +32,7 @@ Packaging follows the Python Packaging User Guide:
 https://packaging.python.org/en/latest/guides/writing-pyproject-toml/.
 Specification conformance guidance:
 https://www.w3.org/TR/spec-variability/.
+
+M2 diagnostics use descriptive codes such as conflict, comparison-type, and
+test-role-argument. They may carry a declaration source span; ambiguous duplicate
+names retain a locator without an invented coordinate.

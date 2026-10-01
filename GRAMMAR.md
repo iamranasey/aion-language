@@ -5,9 +5,10 @@ records *why* the grammar is shaped this way. Every design decision here is
 binding for the v0.1 parser unless superseded by a later logged decision.
 
 Status per `PHILOSOPHY.md`: the grammar and semantics are **Specified**.
-The M1 syntactic front end in `src/` is **Implemented** and **Tested** by
-`tests/test_m1.py`. Semantic validation and `TEST` evaluation are planned for
-M2 and are not yet implemented. Nothing is yet **Verified** or **Proven**.
+The M1 front end and M2 semantic validator in `src/` are **Implemented** and
+**Tested** by the conformance suite, including D16–D20 acceptance cases.
+Runtime state enforcement remains deferred under D20. Nothing is yet
+**Verified** or **Proven**.
 
 ---
 

@@ -5,11 +5,11 @@ All six specs parse and round-trip through the implemented M1 front end,
 as checked by [`tests/test_m1.py`](../tests/test_m1.py). The negative specs
 are syntactically valid; their defects require M2 semantic validation.
 
-## Expected M2 results (not yet implemented)
+## M2 results (implemented and tested)
 
-The table describes the planned validator and `TEST` interpreter outcomes.
-Passing the M1 parser tests does not establish these semantic results.
-M2 must apply adopted D16–D20; additional acceptance expectations are recorded
+The table describes outcomes checked by tests/test_m2.py. M1 parsing alone
+does not establish these semantic results.
+M2 applies adopted D16–D20; additional acceptance expectations are recorded
 in [`docs/CONFORMANCE.md`](../docs/CONFORMANCE.md). The six existing examples
 remain the M0 seed and do not by themselves cover every newly adopted rule.
 

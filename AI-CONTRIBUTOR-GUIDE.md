@@ -312,9 +312,9 @@ is:
 2. Preserve M1's implemented and tested front end: lexer, parser, AST, and
    round-trip pretty-printer. A parser that accepts more than `GRAMMAR.md`
    defines is a bug, not a feature.
-3. Build M2 next: semantic validation and the `TEST` interpreter must reject
-   invalid models and evaluate valid scenarios according to the decision log.
-   These components are not yet implemented; M1 checks syntax only.
+3. Preserve the implemented and tested M2 validator and TEST evaluator under
+   D16–D20. M1 checks syntax; M2 checks the declared model. Advance to M3 only
+   after M2 acceptance; runtime state enforcement still requires D20 design work.
 4. Resist adding a second code-generation target until M4's first target
    fully round-trips with a traceability report. Breadth before depth here
    will produce two half-working backends instead of one working one.

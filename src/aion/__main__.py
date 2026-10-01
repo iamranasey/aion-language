@@ -1,12 +1,4 @@
-"""Minimal M1 driver: parse an AION file and report the round-trip result.
-
-Usage:
-    python -m aion <file.aion> [--print]
-
-Exits 0 on a clean parse and stable round-trip, 1 on any lexical or syntax
-error (printed as `path:line:column: code: message`). This is a developer convenience for
-M1; it performs no semantic validation (that is M2).
-"""
+"""Parse, round-trip, and validate AION. --no-validate selects syntax only."""
 
 from __future__ import annotations
 
@@ -14,16 +6,18 @@ import argparse
 import sys
 
 from .errors import AionError
-from .parser import parse_text
+from .parser import parse_text, parse_with_locations
+from .validate import validate
 from .printer import pretty_print
 
 
 def main(argv: list[str] | None = None) -> int:
     cli = argparse.ArgumentParser(
-        description="Parse AION and check AST round-trip stability; no semantic validation."
+        description="Parse, round-trip, and statically validate AION (M2)."
     )
     cli.add_argument("file", help="UTF-8 AION source file")
     cli.add_argument("--print", action="store_true", dest="do_print", help="emit canonical source")
+    cli.add_argument("--no-validate", action="store_true", help="skip M2 semantic checks")
     args = cli.parse_args(argv)
     path = args.file
     try:
@@ -34,9 +28,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     try:
-        spec = parse_text(source)
+        parsed = parse_with_locations(source)
+        spec = parsed.spec
         printed = pretty_print(spec)
         reparsed = parse_text(printed)
+        diagnostics = [] if args.no_validate else validate(parsed)
     except AionError as err:
         print(f"{path}:{err.line}:{err.column}: {err.code}: {err.message}", file=sys.stderr)
         return 1
@@ -48,10 +44,19 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{path}: round-trip unstable (re-parsed AST differs)", file=sys.stderr)
         return 1
 
+    if diagnostics:
+        for diagnostic in diagnostics:
+            span = diagnostic.span
+            location = f"{path}:{span.line}:{span.column}" if span else path
+            print(f"{location}: {diagnostic.where}: [{diagnostic.code}] {diagnostic.message}", file=sys.stderr)
+        print(f"{path}: {len(diagnostics)} semantic error(s)", file=sys.stderr)
+        return 1
+
     if args.do_print:
         print(printed, end="")
     else:
-        print(f"{path}: parsed OK; round-trip stable "
+        checked = "validation skipped" if args.no_validate else "validated"
+        print(f"{path}: parsed OK; round-trip stable; {checked} "
               f"({len(spec.declarations)} declarations)")
     return 0
 

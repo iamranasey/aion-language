@@ -1,9 +1,14 @@
 # Security scope and reporting
 
-AION is an experimental parser, not an authorization enforcement system.
-Parsing successfully does not authorize a request, reject a semantic conflict,
-enforce a state constraint, emit an audit event, or prove generated code correct.
-Do not use the M1 front end as a production security boundary.
+AION is an experimental parser and static policy-model validator, not a production
+authorization enforcement system. Successful validation checks the declared model
+and TEST scenarios; it does not enforce runtime state, emit audit events, or prove
+generated code correct. Do not use this implementation as a production security boundary.
+
+For programmatic policy queries, `build_validated_model` rejects invalid specs
+before returning a model. Low-level `SemanticModel.build` and `decide` are analysis
+primitives, not validation gates. Models are mutable: revalidate after mutation,
+and supply only declared entity/role/action names in external queries.
 
 ## Untrusted input
 
