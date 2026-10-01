@@ -124,6 +124,11 @@ These terms are not interchangeable. At the v0.1 stage, the language constructs 
 
 ## Guidance for Language and Toolchain Design
 
+The maintainer adopted D16–D20 on 2026-10-01 to make M2's policy composition,
+namespaces, comparison types, TEST bindings, and state-checking limits explicit.
+These are **Specified** decisions, not evidence of an implemented validator.
+The runtime state model remains a separate design gate under D20.
+
 - The language makes intent, semantics, constraints, guarantees, invariants, and tests explicit.
 - The grammar is deterministic and inspectable; decisions are logged.
 - The AST and semantic model preserve meaning needed for validation.

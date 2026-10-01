@@ -15,7 +15,8 @@ from __future__ import annotations
 from .ast_nodes import Spec
 from .errors import AionError, AionLexError, AionSyntaxError
 from .lexer import Lexer, Token
-from .parser import Parser, parse_file, parse_text
+from .parser import Parser, parse_file, parse_text, parse_with_locations
+from .source_map import ParsedSource, SourceSpan
 from .printer import pretty_print
 
 __all__ = [
@@ -29,4 +30,7 @@ __all__ = [
     "parse_text",
     "parse_file",
     "pretty_print",
+    "parse_with_locations",
+    "ParsedSource",
+    "SourceSpan",
 ]

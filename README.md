@@ -241,3 +241,24 @@ AI-assisted contributions (any model or agent) must follow [`AI-CONTRIBUTOR-GUID
 AION is released under the [MIT License](LICENSE). Copyright (c) 2026 Duah-Okity Ranasey.
 
 The license applies to the whole repository: the source code under [`src/`](src/), the tests, the examples, and the specification and design documents. Anyone may use, copy, modify, merge, publish, distribute, sublicense, and sell copies, provided the copyright notice and permission notice are kept in copies or substantial portions. The software and documents are provided "as is", without warranty of any kind. See [LICENSE](LICENSE) for the full text.
+
+## Install and check a specification
+
+Requires Python 3.10 or newer. The configured CI matrix covers 3.10–3.14.
+From a checkout:
+
+```sh
+python -m pip install .
+aion examples/order-service.aion
+aion examples/order-service.aion --print
+python -m unittest discover -s tests -v
+```
+
+The CLI checks syntax and round-trip stability only. It does not validate
+permissions, guarantees, state, or TEST outcomes. Runtime dependencies are
+standard-library only; installing from source requires the declared build backend.
+
+See [conformance evidence](docs/CONFORMANCE.md), [security scope](SECURITY.md),
+[release procedure](docs/RELEASING.md), and [M2 decision adoption record](docs/M2-DECISIONS-PROPOSED.md).
+No external certification, independent implementation, or cross-platform CI
+success is implied by these documents or by the presence of a workflow.

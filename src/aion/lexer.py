@@ -7,7 +7,7 @@ line and column where it begins.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import List, Union
 
 from .errors import AionLexError
@@ -56,6 +56,8 @@ class Token:
     value: TokenValue
     line: int
     column: int
+    end_line: int = field(default=0, compare=False)
+    end_column: int = field(default=0, compare=False)
 
     def describe(self) -> str:
         """Human-readable phrase for use in 'expected ... but found ...' errors."""
@@ -127,9 +129,10 @@ class Lexer:
             self._skip_trivia()
             line, col = self._line, self._column
             if self._pos >= len(self._text):
-                tokens.append(Token(EOF, "", line, col))
+                tokens.append(Token(EOF, "", line, col, line, col))
                 return tokens
-            tokens.append(self._next_token(line, col))
+            token = self._next_token(line, col)
+            tokens.append(replace(token, end_line=self._line, end_column=self._column))
 
     def _next_token(self, line: int, col: int) -> Token:
         ch = self._peek()

@@ -9,6 +9,9 @@ are syntactically valid; their defects require M2 semantic validation.
 
 The table describes the planned validator and `TEST` interpreter outcomes.
 Passing the M1 parser tests does not establish these semantic results.
+M2 must apply adopted D16–D20; additional acceptance expectations are recorded
+in [`docs/CONFORMANCE.md`](../docs/CONFORMANCE.md). The six existing examples
+remain the M0 seed and do not by themselves cover every newly adopted rule.
 
 | File | Class | Expected result |
 | --- | --- | --- |
