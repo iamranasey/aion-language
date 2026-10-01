@@ -1,0 +1,77 @@
+# Proposed semantic decisions before M2
+
+Status: **PROPOSED — requires maintainer decision before merge as normative rules.**
+These are unnumbered proposals, not additions to the grammar or authorization
+to implement new semantics. The maintainer assigns decision numbers when adopted.
+M2 is not implemented. D7/D11 remain the existing decision procedure.
+
+## A. Denial and specificity (clarification of D1/D11)
+
+Question: does D1's "no DENY edge matches" override D11's explicit example?
+Options: unconditional deny precedence; or D11 specificity precedence.
+Recommendation: explicitly mark D1's unconditional-deny sentence superseded by
+D11. A matching higher-specificity ALLOW wins over a bare DENY; equal-specificity
+ALLOW/DENY conflicts are compile errors. Absence of an effective ALLOW denies.
+Acceptance witnesses: bare deny plus role allow; bare allow plus role deny;
+no matching edge; identical conflicting edges. Preserve the existing role-override example.
+
+## B. Composition across RULE blocks
+
+Question: D2 names conflicts within a RULE, while D7 gathers all matching edges.
+Options: globally composed rules; independent named policies requiring explicit
+selection; or ordered rules. Selection/order would need additional language design.
+Recommendation: treat RULE names as organizational groups. Merge all policy edges
+for validation and evaluation. An identical ALLOW/DENY pair anywhere in the model
+is invalid, even if no TEST exercises it. Duplicate same-effect edges are idempotent;
+duplicate REQUIRE edges require one audit obligation, not repeated audit events.
+Acceptance witnesses: split a policy over two RULEs without changing outcomes;
+cross-RULE conflicting pair rejects; reordering declarations preserves outcomes.
+
+## C. Names and duplicate declarations
+
+Question: what names may collide and what happens to duplicate declarations?
+Options: one global namespace; separate namespaces by declaration category.
+Recommendation: separate namespaces for entities, actions, rules, invariants,
+constraints, guarantees, and tests; unique names within each. Roles and fields
+are unique within their entity, in separate namespaces. Duplicate declarations
+are errors, never implicit replacement. Resolve forward references after collecting
+declarations. Role references require an existing role on the referenced entity.
+Acceptance witnesses: duplicate entity rejects; field name shared by different
+entities succeeds; forward action reference resolves; unknown role rejects.
+
+## D. Comparison types and TEST bindings
+
+Question: which primitive comparisons are well-typed, and how do zero-parameter
+actions and role-constrained arguments behave in TESTs?
+Options: implicit coercions or strict types; implicit actors or explicit arity.
+Recommendation: no coercions. Equality/inequality require matching primitive
+types; ordering requires two ints. Preserve zero-parameter ACTION syntax, but
+reject TEST invocation of such an action under D15's subject-plus-args rule.
+Retain D15's policy-driven subject authorization. For remaining arguments, require
+the declared entity; reject role-constrained non-actor TEST parameters until the
+language specifies how the bare argument identifier supplies a role. Do not infer it.
+Acceptance witnesses: bool/int comparison rejects; int/int ordering succeeds;
+zero-parameter declaration parses but TEST invocation rejects; actor type mismatch
+alone does not decide authorization. The role-argument restriction needs explicit
+maintainer approval because it narrows semantic acceptance without changing parsing.
+
+## E. State and monitor semantics (design gate for M4)
+
+Question: which concrete instances and states do entity-level field references denote?
+Options: bind fields through an explicit execution context; or introduce instance
+variables and quantifiers. Recommendation: design a bounded execution-context
+contract first, including actor/arguments/result, instance identity, before/after
+snapshots, comparison timing, failed actions, and audit delivery failure behavior.
+Until adopted, M2 should claim only structural/type validation for state constructs,
+not enforcement of their values or preservation during execution. A target must
+reject unsupported invariants, constraints, monitors, and proof requirements rather
+than silently discard them. The existing M4 non-policy demonstration proposal stays
+proposed; no new target capability is claimed here.
+
+## Approval and implementation sequence
+
+Record adopted A–D rules in numbered decisions and synchronize SPEC, GLOSSARY,
+and conformance expectations before M2 implementation. Build symbol tables,
+reference/type diagnostics, conflict detection, the five predicates, and the D7
+interpreter in that order. Publish positive and negative vectors for each adopted
+rule. E needs a separate design review before a state-aware target is implemented.

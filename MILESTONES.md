@@ -5,10 +5,11 @@ criteria**; a milestone is not "done" when the code is written, but when the
 criteria are demonstrably met (tests, artifacts, or recorded results).
 
 Current position: M1 complete — the deterministic front end (lexer, parser,
-AST, round-trip pretty-printer) is implemented and tested on `main`
-(`tests/test_m1.py`, 23 passing). M0's exit criteria are met (GRAMMAR.md with
+AST, round-trip pretty-printer) is implemented and tested
+(`tests/test_m1.py` and `tests/test_engineering.py`; see `docs/CONFORMANCE.md`). M0's exit criteria are met (GRAMMAR.md with
 D1–D15, six example specs, open questions 1–2 answered, docs cross-checked, licensing decided: MIT).
-Next: M2 — semantic model and static validation.
+Next: M2 — semantic model and static validation. Unresolved semantic choices
+are recorded in `docs/M2-DECISIONS-PROPOSED.md`; they are not adopted rules.
 
 ---
 

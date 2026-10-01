@@ -60,3 +60,18 @@ PYTHONPATH=src python -m aion examples/order-service.aion --print
 ```
 
 Errors are reported as `line:column: message`, naming the expected construct.
+
+## Source locations and diagnostics
+
+`parse_with_locations(text)` returns a `ParsedSource` with `.spec` and
+`.span_for(node)`. Ranges use one-based line/column coordinates and exclusive
+ends. Production nodes (declarations, policy blocks, edges, references, literals,
+scenarios, and predicate expressions/terms) retain locations; an inline predicate
+atom uses its enclosing term's location. Metadata is outside AST equality and
+belongs only to that original parse. `parse_text` and `parse_file` still return
+structural ASTs. Token end coordinates do not participate in token equality.
+
+Front-end exceptions expose `.code`: AION1001 (lexical) or AION1002 (syntax).
+The installed `aion` CLI also reports AION1003 (file/encoding) and AION1004
+(interpreter processing limit). See `docs/RELEASING.md` for exit codes.
+Source maps prepare for useful M2 diagnostics; no semantic checks are added.

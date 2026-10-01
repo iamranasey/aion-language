@@ -11,6 +11,8 @@ from __future__ import annotations
 class AionError(Exception):
     """Base class for front-end diagnostics."""
 
+    code = "AION1000"
+
     def __init__(self, message: str, line: int, column: int) -> None:
         self.message = message
         self.line = line
@@ -21,6 +23,10 @@ class AionError(Exception):
 class AionLexError(AionError):
     """Raised when the source cannot be tokenized."""
 
+    code = "AION1001"
+
 
 class AionSyntaxError(AionError):
     """Raised when the token stream does not match the GRAMMAR.md §2 EBNF."""
+
+    code = "AION1002"

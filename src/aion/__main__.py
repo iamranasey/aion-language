@@ -4,12 +4,13 @@ Usage:
     python -m aion <file.aion> [--print]
 
 Exits 0 on a clean parse and stable round-trip, 1 on any lexical or syntax
-error (printed as `line:column: message`). This is a developer convenience for
+error (printed as `path:line:column: code: message`). This is a developer convenience for
 M1; it performs no semantic validation (that is M2).
 """
 
 from __future__ import annotations
 
+import argparse
 import sys
 
 from .errors import AionError
@@ -17,30 +18,37 @@ from .parser import parse_text
 from .printer import pretty_print
 
 
-def main(argv: list[str]) -> int:
-    args = [a for a in argv if not a.startswith("--")]
-    do_print = "--print" in argv
-    if len(args) != 1:
-        print("usage: python -m aion <file.aion> [--print]", file=sys.stderr)
-        return 2
-
-    path = args[0]
-    with open(path, "r", encoding="utf-8") as handle:
-        source = handle.read()
+def main(argv: list[str] | None = None) -> int:
+    cli = argparse.ArgumentParser(
+        description="Parse AION and check AST round-trip stability; no semantic validation."
+    )
+    cli.add_argument("file", help="UTF-8 AION source file")
+    cli.add_argument("--print", action="store_true", dest="do_print", help="emit canonical source")
+    args = cli.parse_args(argv)
+    path = args.file
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            source = handle.read()
+    except (OSError, UnicodeError) as err:
+        print(f"{path}: AION1003: {err}", file=sys.stderr)
+        return 1
 
     try:
         spec = parse_text(source)
         printed = pretty_print(spec)
         reparsed = parse_text(printed)
     except AionError as err:
-        print(f"{path}:{err.line}:{err.column}: {err.message}", file=sys.stderr)
+        print(f"{path}:{err.line}:{err.column}: {err.code}: {err.message}", file=sys.stderr)
+        return 1
+    except (RecursionError, ValueError) as err:
+        print(f"{path}: AION1004: input exceeds processing limits ({type(err).__name__})", file=sys.stderr)
         return 1
 
     if reparsed != spec:
         print(f"{path}: round-trip unstable (re-parsed AST differs)", file=sys.stderr)
         return 1
 
-    if do_print:
+    if args.do_print:
         print(printed, end="")
     else:
         print(f"{path}: parsed OK; round-trip stable "

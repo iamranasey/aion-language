@@ -156,7 +156,7 @@ Status of the original eight questions after [`GRAMMAR.md`](GRAMMAR.md):
 2. **Core language vs. libraries** — *answered for v0.1*: everything in §3 is core; there is no library mechanism yet. First library candidates after M4: obligation kinds beyond `AUDIT`, additional guarantee predicates.
 3. **Natural-language intent → deterministic semantics** — *deferred*. v0.1 sidesteps it by restricting expressions to declared names and fixed predicate shapes (D8).
 4. **IR contents** — *assigned to M3* with a round-trip preservation requirement.
-5. **Checking generated code against guarantees** — *partially answered*: `static` guarantees hold by construction of the pipeline (validated before generation); `monitor` guarantees require target instrumentation; traceability mapping is an M4 exit criterion.
+5. **Checking generated code against guarantees** — *partially answered*: `static` guarantees are specified as checks over the semantic model; preserving their meaning in generated artifacts requires separate evidence. `monitor` guarantees require target instrumentation; traceability mapping is an M4 exit criterion and is not itself a correctness proof.
 6. **Concurrency and distributed systems** — *deferred*, non-goal for v0.1.
 7. **Data, deployment, and infrastructure requirements** — *deferred*, non-goal for v0.1.
 8. **Which security properties AION validates directly** — *answered for v0.1*: policy conflict-freedom, reachability, dangling references, obligation wiring, and the static guarantee catalog.
