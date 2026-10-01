@@ -1,9 +1,10 @@
-# Proposed semantic decisions before M2
+# M2 semantic decisions — adoption record
 
-Status: **PROPOSED — requires maintainer decision before merge as normative rules.**
-These are unnumbered proposals, not additions to the grammar or authorization
-to implement new semantics. The maintainer assigns decision numbers when adopted.
-M2 is not implemented. D7/D11 remain the existing decision procedure.
+Status: **ADOPTED by maintainer instruction on 2026-10-01.**
+A–D are recorded as GRAMMAR D16–D19. E's design gate and scope boundary are
+recorded as D20; no concrete runtime state model is adopted. The filename is
+retained for existing links. The original options and recommendations below
+are historical rationale; GRAMMAR is authoritative. M2 remains unimplemented.
 
 ## A. Denial and specificity (clarification of D1/D11)
 
@@ -52,8 +53,8 @@ the declared entity; reject role-constrained non-actor TEST parameters until the
 language specifies how the bare argument identifier supplies a role. Do not infer it.
 Acceptance witnesses: bool/int comparison rejects; int/int ordering succeeds;
 zero-parameter declaration parses but TEST invocation rejects; actor type mismatch
-alone does not decide authorization. The role-argument restriction needs explicit
-maintainer approval because it narrows semantic acceptance without changing parsing.
+alone does not decide authorization. The adopted role-argument restriction narrows semantic acceptance without
+changing parsing (D19).
 
 ## E. State and monitor semantics (design gate for M4)
 
@@ -62,7 +63,7 @@ Options: bind fields through an explicit execution context; or introduce instanc
 variables and quantifiers. Recommendation: design a bounded execution-context
 contract first, including actor/arguments/result, instance identity, before/after
 snapshots, comparison timing, failed actions, and audit delivery failure behavior.
-Until adopted, M2 should claim only structural/type validation for state constructs,
+Under D20, M2 claims only structural/type validation for state constructs,
 not enforcement of their values or preservation during execution. A target must
 reject unsupported invariants, constraints, monitors, and proof requirements rather
 than silently discard them. The existing M4 non-policy demonstration proposal stays
@@ -70,8 +71,8 @@ proposed; no new target capability is claimed here.
 
 ## Approval and implementation sequence
 
-Record adopted A–D rules in numbered decisions and synchronize SPEC, GLOSSARY,
-and conformance expectations before M2 implementation. Build symbol tables,
+A–D are recorded in D16–D19 and the state-design gate in D20. SPEC, GLOSSARY,
+and conformance expectations are synchronized before M2 implementation. Build symbol tables,
 reference/type diagnostics, conflict detection, the five predicates, and the D7
 interpreter in that order. Publish positive and negative vectors for each adopted
 rule. E needs a separate design review before a state-aware target is implemented.

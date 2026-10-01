@@ -259,6 +259,6 @@ permissions, guarantees, state, or TEST outcomes. Runtime dependencies are
 standard-library only; installing from source requires the declared build backend.
 
 See [conformance evidence](docs/CONFORMANCE.md), [security scope](SECURITY.md),
-[release procedure](docs/RELEASING.md), and [proposed M2 decisions](docs/M2-DECISIONS-PROPOSED.md).
+[release procedure](docs/RELEASING.md), and [M2 decision adoption record](docs/M2-DECISIONS-PROPOSED.md).
 No external certification, independent implementation, or cross-platform CI
 success is implied by these documents or by the presence of a workflow.

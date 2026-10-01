@@ -7,9 +7,10 @@ criteria are demonstrably met (tests, artifacts, or recorded results).
 Current position: M1 complete — the deterministic front end (lexer, parser,
 AST, round-trip pretty-printer) is implemented and tested
 (`tests/test_m1.py` and `tests/test_engineering.py`; see `docs/CONFORMANCE.md`). M0's exit criteria are met (GRAMMAR.md with
-D1–D15, six example specs, open questions 1–2 answered, docs cross-checked, licensing decided: MIT).
-Next: M2 — semantic model and static validation. Unresolved semantic choices
-are recorded in `docs/M2-DECISIONS-PROPOSED.md`; they are not adopted rules.
+D1–D20, six example specs, open questions 1–2 answered, docs cross-checked, licensing decided: MIT).
+Next: M2 — semantic model and static validation under adopted D16–D20.
+`docs/M2-DECISIONS-PROPOSED.md` records their adoption; runtime state semantics
+remain deferred under D20. Adopting decisions does not complete M2.
 
 ---
 
@@ -51,10 +52,13 @@ Exit criteria:
 **Goal:** the compiler starts saying "no."
 
 Exit criteria:
-- Symbol tables for entities, roles, fields, actions, rules.
+- Symbol tables and namespace uniqueness for all declaration categories (D18),
+  with roles/fields scoped per entity and forward-reference resolution.
 - Dangling-reference diagnostics (D3) for every construct that can dangle.
-- Policy-conflict detection (D2): exact-pair ALLOW∩DENY reported as errors;
-  role-override resolution implemented and tested.
+- Global policy-conflict detection (D17): exact-pair ALLOW∩DENY across all
+  RULEs reported as errors; D16 specificity and idempotent edges tested.
+- Strict comparison typing and TEST binding checks (D19). State checking
+  covers references/types only, with no runtime enforcement claim (D20).
 - All five static guarantee predicates from `GRAMMAR.md` §2 implemented;
   failing guarantees are compile errors.
 - A `TEST` interpreter implementing the D7 decision procedure; every `TEST`

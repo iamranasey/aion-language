@@ -4,7 +4,7 @@ This glossary defines the terms used across the AION documentation so readers ca
 
 Status per the vocabulary in [`PHILOSOPHY.md`](PHILOSOPHY.md): the meanings below are **Specified**. Where a term names a tool or feature that does not exist yet, the entry says so.
 
-The **Source** column points to where the term is defined or most fully used. `D1`–`D15` refer to entries in the decision log in `GRAMMAR.md`.
+The **Source** column points to where the term is defined or most fully used. `D1`–`D20` refer to entries in the decision log in `GRAMMAR.md`.
 
 ## Contents
 
@@ -19,6 +19,7 @@ The **Source** column points to where the term is defined or most fully used. `D
 9. [Milestones](#9-milestones)
 10. [Philosophy and positioning](#10-philosophy-and-positioning)
 11. [Neighboring tools (prior art)](#11-neighboring-tools-prior-art)
+12. [Adopted M2 terminology](#12-adopted-m2-terminology)
 
 ---
 
@@ -61,12 +62,12 @@ Declaration keywords are uppercase and reserved.
 
 | Term | Meaning | Source |
 | --- | --- | --- |
-| **fail-closed** | The default posture: a request is permitted only if an `ALLOW` edge matches and no higher-priority `DENY` applies. There is no implicit allow. | D1 |
+| **fail-closed** | The default posture: a request is permitted only if an `ALLOW` edge matches and no higher-priority `DENY` applies. There is no implicit allow; equal-specificity conflicts are compile errors. | D1, D16 |
 | **policy model** | The set of subjects, actions, and `ALLOW`/`DENY`/`REQUIRE` edges that a `TEST` is evaluated against. Not generated code. | D7 |
 | **specificity** | A ranking of subjects. A role-qualified `Entity[Role]` has specificity 2; a bare `Entity` has specificity 1. Higher specificity wins. | D11 |
 | **matching (an edge)** | A request `Entity[Role]` matches an edge on `Entity[Role]` (specificity 2) or bare `Entity` (specificity 1). A bare `Entity` request matches only bare `Entity`. | D7 |
 | **override** | When a higher-specificity edge beats a lower-specificity one regardless of whether it is `ALLOW` or `DENY`. Example: `ALLOW User[Admin] -> archive` beats `DENY User -> archive` for an Admin. | D11 |
-| **conflict** | An exact `(subject, action)` pair that appears in both `ALLOW` and `DENY` within a `RULE` at the same specificity. A compile error. | D2, D11 |
+| **conflict** | An exact `(subject, action)` pair that appears in both `ALLOW` and `DENY` anywhere across all `RULE` blocks at the same specificity. A compile error even without a TEST. | D2, D11, D17 |
 | **shadowed** | An `ALLOW` edge is shadowed when a higher-specificity `DENY` beats it for every possible request subject. A shadowed edge is not effective. | D11 |
 | **effective ALLOW** | An `ALLOW` edge that is not shadowed for all possible subjects. Only effective allows count toward `NO_DEAD_ACTIONS`. | D11 |
 | **dead action** | A declared `ACTION` that no effective `ALLOW` can ever reach. | D11, GRAMMAR §2 |
@@ -218,3 +219,15 @@ These are external projects, described only to explain how AION relates to them.
 | **Alloy** | A lightweight formal modeling language with automated analysis. |
 | **Dafny** | A programming language with built-in verification of code against specifications. |
 | **Gherkin / BDD** | A readable given/when/then scenario format for behavior-driven development. |
+
+## 12. Adopted M2 terminology
+
+| Term | Meaning | Source |
+| --- | --- | --- |
+| **global policy composition** | All RULE blocks contribute to one model with no declaration-order precedence. | D17 |
+| **idempotent edge** | Repeating the same policy effect or AUDIT obligation adds no new effect or repeated audit event. | D17 |
+| **namespace** | Separate name domain per declaration category; duplicate declarations within it are errors. Roles and fields each have entity-local namespaces. | D18 |
+| **forward reference** | Reference resolved after collecting declarations, so its declaration may occur later. | D18 |
+| **strict comparison typing** | No coercions; equality requires matching primitive types and ordering requires ints. | D19 |
+| **TEST binding restriction** | Zero-parameter actions and role-constrained non-actor parameters cannot be invoked by TEST. Remaining arguments name the declared parameter entity. | D19 |
+| **state execution design gate** | M2 checks state references/types; runtime state enforcement awaits an explicit execution model. Unsupported target constructs must be rejected. | D20 |

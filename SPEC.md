@@ -35,6 +35,26 @@ The concrete syntax, the guarantee predicate catalog, and the decision log live 
 
 For definitions of the terms used in this specification, see [`GLOSSARY.md`](GLOSSARY.md). The glossary is non-normative: on any disagreement, this specification and [`GRAMMAR.md`](GRAMMAR.md) win.
 
+### Adopted semantic rules (D16–D20)
+
+Policy edges compose globally across RULE blocks, independent of declaration
+order. Highest subject specificity decides; an exact ALLOW/DENY conflict anywhere
+is a compile error. Duplicate same-effect edges and audit obligations are idempotent.
+Each declaration category has its own namespace; names are unique within it.
+Roles and fields are unique in separate namespaces within an entity. Forward
+references resolve after collecting all declarations.
+
+Comparisons do not coerce types: equality/inequality require matching primitive
+types, and ordering requires ints. TESTs cannot invoke zero-parameter actions or
+actions with role-constrained non-actor parameters. Other non-actor arguments
+must name the parameter's declared entity; actor authorization still follows
+policy, not actor type matching. These are semantic checks, not parser changes.
+
+M2 state checking covers references and comparison types only. State execution
+and monitor enforcement require further decisions; targets must reject unsupported
+constructs rather than discard them. These rules are **Specified**, not yet
+**Implemented**. See GRAMMAR D16–D20 for the authoritative decisions.
+
 ## 4. Normative Example
 
 `OrderService` is the v0.1 conformance example: every construct above appears in it, and the milestone M1 parser must accept it while the M2 test runner must pass both of its `TEST` blocks.

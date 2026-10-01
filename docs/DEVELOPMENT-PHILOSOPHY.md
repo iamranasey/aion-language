@@ -165,7 +165,7 @@ For the current stage, this philosophy translates into concrete discipline, and
 the milestone plan in [`MILESTONES.md`](../MILESTONES.md) tracks progress against
 it:
 
-- **M0 — met:** a small grammar and decision log (D1–D15) before any syntax
+- **M0 — met:** a small grammar and decision log (D1–D15 at M0; D16–D20 adopted for M2) before any syntax
   expansion; concrete example specs.
 - **M1 — Implemented + Tested:** a deterministic hand-written lexer and
   recursive-descent parser, an AST, and a pretty-printer with a stable

@@ -11,5 +11,5 @@
 - Add bounded generated conformance checks, documented-example checks, source-range
   tests, and a configured Python 3.10–3.14 CI matrix across three operating systems.
 - Clarify assurance claims, security scope, and release/conformance procedures.
-- Record M2 semantic choices as proposals only; no semantic validator or TEST
+- Adopt M2 semantic decisions D16–D20; no semantic validator or TEST
   evaluator is included. There is no published release or certification claim.

@@ -13,7 +13,7 @@ supported phase, and exact suite. It is not a claim about arbitrary generated co
 | SPEC normative example consistency | test_engineering.ConformanceProperties.test_normative_example_structural_equivalence | Comments may differ |
 | Diagnostic source ranges | test_engineering.SourceLocations | Source positions excluded from AST equality |
 | CLI input failures | test_engineering.CommandLine | File/encoding/options/syntax errors |
-| D1–D4, D6–D8, D11–D15 semantic requirements | examples and docs/M2-DECISIONS-PROPOSED.md | Specified or proposed only; no evaluator |
+| D1–D4, D6–D8, D11–D20 semantic requirements | examples and docs/M2-DECISIONS-PROPOSED.md | Specified, including adopted D16–D20; no evaluator |
 | D5 proof rejection and monitor enforcement | src/README.md; M2/M4 plan | M1 accepts syntax only |
 | M3 IR preservation; M4 target equivalence | MILESTONES.md | Not implemented |
 
@@ -29,8 +29,34 @@ from source-tree unit tests.
 
 ## Future independent comparison (not yet executed)
 
+### Adopted M2 acceptance expectations
+
+These are required semantic outcomes, not passing M1 assertions. The M2
+implementation must turn them into executable positive/negative vectors.
+
+| Case | Required outcome | Decision |
+| --- | --- | --- |
+| Bare DENY plus role ALLOW | Role request allowed; bare request denied | D16 |
+| Bare ALLOW plus role DENY | Role request denied; bare request allowed | D16 |
+| No matching policy edge | Denied | D16 |
+| Exact ALLOW/DENY pair split across RULEs, with no TEST | Compile error | D17 |
+| Reorder RULEs or repeat same-effect edges | Same outcomes and obligations | D17 |
+| Repeat REQUIRE action -> AUDIT | One audit obligation | D17 |
+| Duplicate entity declaration | Compile error | D18 |
+| Same identifier in entity/action namespaces | No name collision | D18 |
+| Reference declared later | Resolves successfully | D18 |
+| Unknown role or duplicate field in an entity | Compile error | D18 |
+| bool compared with int, or string ordering | Type error | D19 |
+| int ordering or same-type equality | Type-valid | D19 |
+| Zero-parameter ACTION declaration | Parses; TEST invocation is an arity error | D19 |
+| TEST invokes role-constrained non-actor parameter | Binding error; no inferred role | D19 |
+| Declared subject differs from actor parameter type | Policy decides; mismatch alone is not rejection | D15, D19 |
+| Valid invariant references and constraint operand types | Structural/type validity only, not runtime enforcement | D20 |
+
+### Independent evaluator and target comparison
+
 For M2, publish machine-readable vectors with spec, request, expected decision,
-obligations, and diagnostic codes after semantic decisions are adopted. Ask an
+obligations, and diagnostic codes against adopted D16–D20. Ask an
 independent implementer to build a small evaluator from the specification alone.
 Compare decisions exhaustively over finite declared subject/action combinations.
 For M4, execute the same vectors against the generated artifact and record the
