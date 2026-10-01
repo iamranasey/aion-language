@@ -1,12 +1,9 @@
 """Semantic diagnostics for the AION v0.1 validator (M2).
 
-M1 diagnostics (``AionLexError`` / ``AionSyntaxError``) carry a line and column
-because the front end knows exactly where the offending token is. M2 works over
-the AST, which is deliberately **position-free** (see ``ast_nodes.py``: no line
-or column is stored, so that ``parse -> print -> re-parse`` is a plain
-structural comparison). A semantic diagnostic therefore locates its subject by
-*name* — a declaration-qualified locator such as ``"RULE BrokenPolicy"`` or
-``"TEST auditor_can_inspect"`` — which is stable and unambiguous within a spec.
+Diagnostics retain declaration-qualified locators and optional source spans.
+Pass ParsedSource from parse_with_locations to validate for declaration ranges;
+plain structural AST callers still work. Ambiguous duplicate declaration names
+retain their textual locator without an invented location.
 
 Diagnostics are *collected*, not raised one at a time: ``validate`` reports every
 applicable defect so a negative spec surfaces all of its independent problems
@@ -18,6 +15,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List
+from .source_map import SourceSpan
 
 
 # Diagnostic codes. Kept as plain string constants (not an Enum) so they are
@@ -38,6 +36,8 @@ GUARANTEE_FAILED = "guarantee-failed"
 TEST_ARITY = "test-arity"
 TEST_ARG_MISMATCH = "test-arg-mismatch"
 TEST_FAILED = "test-failed"
+COMPARISON_TYPE = "comparison-type"
+TEST_ROLE_ARGUMENT = "test-role-argument"
 
 
 @dataclass(frozen=True)
@@ -52,6 +52,7 @@ class Diagnostic:
     code: str
     where: str
     message: str
+    span: SourceSpan | None = None
 
     def __str__(self) -> str:  # pragma: no cover - cosmetic
         return f"{self.where}: [{self.code}] {self.message}"

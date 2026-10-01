@@ -1,0 +1,67 @@
+[
+  {
+    "name": "d16-narrow-allow",
+    "source": "SYSTEM S ENTITY E roles: [A] ACTION act(E) RULE R DENY E -> act ALLOW E[A] -> act TEST t E[A] performs act() EXPECT ALLOWED",
+    "diagnostic_codes": []
+  },
+  {
+    "name": "d17-cross-rule-conflict",
+    "source": "SYSTEM S ENTITY E ACTION act(E) RULE R ALLOW E -> act RULE Q DENY E -> act",
+    "diagnostic_codes": [
+      "conflict"
+    ]
+  },
+  {
+    "name": "d17-mixed-conflict-sorting",
+    "source": "SYSTEM S ENTITY E roles: [A] ACTION act(E) RULE R ALLOW E -> act E[A] -> act DENY E -> act E[A] -> act",
+    "diagnostic_codes": [
+      "conflict",
+      "conflict"
+    ]
+  },
+  {
+    "name": "d18-duplicate-test",
+    "source": "SYSTEM S ENTITY E ACTION act(E) TEST t E performs act() EXPECT DENIED TEST t E performs act() EXPECT DENIED",
+    "diagnostic_codes": [
+      "duplicate-test"
+    ]
+  },
+  {
+    "name": "d19-zero-parameter-test",
+    "source": "SYSTEM S ENTITY E ACTION act() TEST t E performs act() EXPECT DENIED",
+    "diagnostic_codes": [
+      "test-arity"
+    ]
+  },
+  {
+    "name": "d19-nonactor-role",
+    "source": "SYSTEM S ENTITY E ENTITY F roles: [A] ACTION act(E,F[A]) RULE R ALLOW E -> act TEST t E performs act(F) EXPECT ALLOWED",
+    "diagnostic_codes": [
+      "test-role-argument"
+    ]
+  },
+  {
+    "name": "d19-nonactor-role-declaration",
+    "source": "SYSTEM S ENTITY E ENTITY F roles: [A] ACTION act(E,F[A])",
+    "diagnostic_codes": []
+  },
+  {
+    "name": "d19-bool-int",
+    "source": "SYSTEM S ENTITY E fields: [x: int] CONSTRAINT c E.x == true",
+    "diagnostic_codes": [
+      "comparison-type"
+    ]
+  },
+  {
+    "name": "d19-string-order",
+    "source": "SYSTEM S ENTITY E fields: [x: string] CONSTRAINT c E.x < \"a\"",
+    "diagnostic_codes": [
+      "comparison-type"
+    ]
+  },
+  {
+    "name": "d19-declared-actor-mismatch-policy",
+    "source": "SYSTEM S ENTITY E ENTITY F ACTION act(E) RULE R ALLOW F -> act TEST t F performs act() EXPECT ALLOWED",
+    "diagnostic_codes": []
+  }
+]

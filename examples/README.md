@@ -1,23 +1,27 @@
 # AION v0.1 Conformance Seed
 
 These files are the M0 conformance seed described by [`MILESTONES.md`](../MILESTONES.md).
-They were hand-checked against [`GRAMMAR.md`](../GRAMMAR.md) before the front end
-existed; they are now machine-checked by the M1 parser (parse + round-trip) and
-the M2 validator (semantic diagnostics + the D7 `TEST` interpreter). See
-[`tests/test_m1.py`](../tests/test_m1.py) and
-[`tests/test_m2.py`](../tests/test_m2.py).
+All six specs parse and round-trip through the implemented M1 front end,
+as checked by [`tests/test_m1.py`](../tests/test_m1.py). The negative specs
+are syntactically valid; their defects require M2 semantic validation.
 
-## Expected results
+## M2 results (implemented and tested)
+
+The table describes outcomes checked by tests/test_m2.py. M1 parsing alone
+does not establish these semantic results.
+M2 applies adopted D16–D20; additional acceptance expectations are recorded
+in [`docs/CONFORMANCE.md`](../docs/CONFORMANCE.md). The six existing examples
+remain the M0 seed and do not by themselves cover every newly adopted rule.
 
 | File | Class | Expected result |
 | --- | --- | --- |
-| `order-service.aion` | Positive | Parses, round-trips, validates clean; both tests pass |
-| `document-access.aion` | Positive | Parses, round-trips, validates clean; both tests pass |
-| `inventory.aion` | Positive | Parses, round-trips, validates clean; both tests pass |
-| `role-override.aion` | Positive | Parses, round-trips, validates clean; both tests pass. Witnesses the D2/D11 override: a bare `ALLOW` with a role-scoped `DENY` on the same action (Member allowed + audited, Suspended denied) |
-| `negative-dangling-reference.aion` | Negative | Parses, then the validator reports exactly 6 diagnostics: undeclared action (`remove`), undeclared role (`Writer`), undeclared obligation action (`publish`), undeclared field (`Document.owner`), undeclared case-mismatched entity (`document.size`, D12), and the undeclared test action (`remove`) |
-| `negative-conflict-and-proof.aion` | Negative | Parses, then the validator reports exactly 2 diagnostics: the exact ALLOW/DENY conflict (D2) and the unsupported `proof` guarantee (D5). Its `TEST` is skipped, not double-reported, because the conflict is already a compile error |
+| `order-service.aion` | Positive | Parses; both tests pass |
+| `document-access.aion` | Positive | Parses; both tests pass |
+| `inventory.aion` | Positive | Parses; both tests pass |
+| `role-override.aion` | Positive | Parses; both tests pass. Witnesses the D2/D11 override: a bare `ALLOW` with a role-scoped `DENY` on the same action (Member allowed + audited, Suspended denied) |
+| `negative-dangling-reference.aion` | Negative | Rejects undeclared policy action, role, obligation target action, state references, and test action |
+| `negative-conflict-and-proof.aion` | Negative | Rejects the exact ALLOW/DENY conflict and unsupported `proof` guarantee |
 
-The negative files intentionally contain more than one independent defect. The
-validator reports each applicable diagnostic rather than silently accepting the
-specification or failing on the first defect.
+The negative files intentionally contain more than one independent defect. A
+validator should report each applicable diagnostic rather than silently
+accepting the specification.

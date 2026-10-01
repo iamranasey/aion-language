@@ -18,6 +18,7 @@ from typing import List, Optional
 
 from . import ast_nodes as ast
 from .errors import AionSyntaxError
+from .source_map import ParsedSource, SourceSpan, located
 from .lexer import (
     EOF, IDENT, INTEGER, KEYWORD, STRING, SYMBOL,
     GUARANTEE_ATOMS, Token, Lexer,
@@ -38,6 +39,7 @@ class Parser:
     def __init__(self, tokens: List[Token]) -> None:
         self._tokens = tokens
         self._i = 0
+        self.spans: dict[int, SourceSpan] = {}
 
     # --- token cursor helpers -----------------------------------------
     def _peek(self) -> Token:
@@ -81,6 +83,7 @@ class Parser:
         raise self._error(f"expected an identifier but found {tok.describe()}", tok)
 
     # --- productions ---------------------------------------------------
+    @located
     def parse_spec(self) -> ast.Spec:
         self._expect_keyword("SYSTEM")
         name = self._expect_ident()
@@ -97,6 +100,7 @@ class Parser:
                 )
         return ast.Spec(name=name, declarations=declarations)
 
+    @located
     def _parse_declaration(self, keyword: str) -> ast.Declaration:
         if keyword == "ENTITY":
             return self._parse_entity_decl()
@@ -113,6 +117,7 @@ class Parser:
         return self._parse_test_decl()
 
     # ENTITY ident [ "roles" ":" "[" ident-list "]" ] [ "fields" ":" "[" field-list "]" ]
+    @located
     def _parse_entity_decl(self) -> ast.EntityDecl:
         self._expect_keyword("ENTITY")
         name = self._expect_ident()
@@ -146,6 +151,7 @@ class Parser:
             fields.append(self._parse_field())
         return fields
 
+    @located
     def _parse_field(self) -> ast.Field:
         name = self._expect_ident()
         self._expect_symbol(":")
@@ -159,6 +165,7 @@ class Parser:
         )
 
     # ACTION ident "(" [ param-list ] ")" [ "->" ident ]
+    @located
     def _parse_action_decl(self) -> ast.ActionDecl:
         self._expect_keyword("ACTION")
         name = self._expect_ident()
@@ -180,6 +187,7 @@ class Parser:
             params.append(self._parse_param())
         return params
 
+    @located
     def _parse_param(self) -> ast.Param:
         entity = self._expect_ident()
         role: Optional[str] = None
@@ -190,6 +198,7 @@ class Parser:
         return ast.Param(entity=entity, role=role)
 
     # RULE ident { policy-block }
+    @located
     def _parse_rule_decl(self) -> ast.RuleDecl:
         self._expect_keyword("RULE")
         name = self._expect_ident()
@@ -198,6 +207,7 @@ class Parser:
             blocks.append(self._parse_policy_block())
         return ast.RuleDecl(name=name, blocks=blocks)
 
+    @located
     def _parse_policy_block(self) -> ast.PolicyBlock:
         tok = self._advance()  # ALLOW | DENY | REQUIRE
         keyword = str(tok.value)
@@ -212,12 +222,14 @@ class Parser:
             obligation_edges.append(self._parse_obligation_edge())
         return ast.RequireBlock(obligation_edges)
 
+    @located
     def _parse_edge(self) -> ast.Edge:
         subject = self._parse_subject()
         self._expect_symbol("->")
         action = self._expect_ident()
         return ast.Edge(subject=subject, action=action)
 
+    @located
     def _parse_subject(self) -> ast.Subject:
         entity = self._expect_ident()
         role: Optional[str] = None
@@ -227,6 +239,7 @@ class Parser:
             self._expect_symbol("]")
         return ast.Subject(entity=entity, role=role)
 
+    @located
     def _parse_obligation_edge(self) -> ast.ObligationEdge:
         action = self._expect_ident()
         self._expect_symbol("->")
@@ -234,6 +247,7 @@ class Parser:
         return ast.ObligationEdge(action=action, obligation="AUDIT")
 
     # INVARIANT ident "after" ident "," field-ref "unchanged"
+    @located
     def _parse_invariant_decl(self) -> ast.InvariantDecl:
         self._expect_keyword("INVARIANT")
         name = self._expect_ident()
@@ -244,6 +258,7 @@ class Parser:
         self._expect_keyword("unchanged")
         return ast.InvariantDecl(name=name, action=action, ref=ref)
 
+    @located
     def _parse_field_ref(self) -> ast.FieldRef:
         entity = self._expect_ident()
         self._expect_symbol(".")
@@ -251,6 +266,7 @@ class Parser:
         return ast.FieldRef(entity=entity, field=field)
 
     # CONSTRAINT ident comparison
+    @located
     def _parse_constraint_decl(self) -> ast.ConstraintDecl:
         self._expect_keyword("CONSTRAINT")
         name = self._expect_ident()
@@ -270,6 +286,7 @@ class Parser:
             tok,
         )
 
+    @located
     def _parse_field_ref_or_value(self) -> "ast.FieldRef | ast.Literal":
         tok = self._peek()
         if tok.kind == IDENT:
@@ -290,6 +307,7 @@ class Parser:
         )
 
     # GUARANTEE class ident guarantee-pred
+    @located
     def _parse_guarantee_decl(self) -> ast.GuaranteeDecl:
         self._expect_keyword("GUARANTEE")
         tok = self._peek()
@@ -306,6 +324,7 @@ class Parser:
         pred = self._parse_pred_expr()
         return ast.GuaranteeDecl(cls=cls, name=name, pred=pred)
 
+    @located
     def _parse_pred_expr(self) -> ast.PredExpr:
         terms = [self._parse_pred_term()]
         ops: List[str] = []
@@ -314,6 +333,7 @@ class Parser:
             terms.append(self._parse_pred_term())
         return ast.PredExpr(terms=terms, ops=ops)
 
+    @located
     def _parse_pred_term(self) -> ast.PredTerm:
         negated = False
         if self._at_keyword("not"):
@@ -336,6 +356,7 @@ class Parser:
         )
 
     # TEST ident scenario "EXPECT" expectation
+    @located
     def _parse_test_decl(self) -> ast.TestDecl:
         self._expect_keyword("TEST")
         name = self._expect_ident()
@@ -344,6 +365,7 @@ class Parser:
         expectation = self._parse_expectation()
         return ast.TestDecl(name=name, scenario=scenario, expectation=expectation)
 
+    @located
     def _parse_scenario(self) -> ast.Scenario:
         subject = self._parse_subject()
         tok = self._peek()
@@ -362,6 +384,7 @@ class Parser:
         self._expect_symbol(")")
         return ast.Scenario(subject=subject, verb=verb, action=action, args=args)
 
+    @located
     def _parse_expectation(self) -> ast.Expectation:
         tok = self._peek()
         if tok.kind == KEYWORD and str(tok.value) in EXPECT_RESULTS:
@@ -383,6 +406,13 @@ def parse_text(text: str) -> ast.Spec:
     """Lex and parse AION source text into a Spec AST."""
     tokens = Lexer(text).tokenize()
     return Parser(tokens).parse_spec()
+
+
+def parse_with_locations(text: str) -> ParsedSource:
+    """Parse while retaining source ranges outside the structural AST."""
+    parser = Parser(Lexer(text).tokenize())
+    spec = parser.parse_spec()
+    return ParsedSource(spec, parser.spans)
 
 
 def parse_file(path: str) -> ast.Spec:

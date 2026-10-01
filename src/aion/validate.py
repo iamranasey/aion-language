@@ -26,11 +26,15 @@ No LLM or non-determinism (D9): this is a total function over the finite model.
 from __future__ import annotations
 
 from typing import List, Optional
+from dataclasses import replace
+from .source_map import ParsedSource
 
 from . import ast_nodes as ast
 from . import semantic
 from .diagnostics import (
     CONFLICT,
+    COMPARISON_TYPE,
+    TEST_ROLE_ARGUMENT,
     DANGLING_ACTION,
     DANGLING_ENTITY,
     DANGLING_FIELD,
@@ -44,8 +48,10 @@ from .diagnostics import (
 )
 
 
-def validate(spec: ast.Spec) -> List[Diagnostic]:
+def validate(spec: ast.Spec | ParsedSource) -> List[Diagnostic]:
     """Return every semantic defect in ``spec`` (empty list ⇒ spec is valid)."""
+    source = spec if isinstance(spec, ParsedSource) else None
+    spec = source.spec if source else spec
     model, diagnostics = semantic.SemanticModel.build(spec)
 
     _check_actions(model, diagnostics)
@@ -56,10 +62,17 @@ def validate(spec: ast.Spec) -> List[Diagnostic]:
     _check_guarantees(model, diagnostics)
     _check_tests(model, diagnostics)
 
+    if source:
+        nodes = {}
+        for decl in spec.declarations:
+            kind = type(decl).__name__.removesuffix("Decl").upper()
+            nodes.setdefault(f"{kind} {decl.name}", []).append(decl)
+        diagnostics = [replace(d, span=source.spans.get(id(nodes[d.where][0])))
+                       if len(nodes.get(d.where, [])) == 1 else d for d in diagnostics]
     return diagnostics
 
 
-def validate_or_raise(spec: ast.Spec) -> None:
+def validate_or_raise(spec: ast.Spec | ParsedSource) -> None:
     """Convenience wrapper: raise ``AionSemanticError`` if ``spec`` is invalid."""
     from .diagnostics import AionSemanticError
 
@@ -68,11 +81,25 @@ def validate_or_raise(spec: ast.Spec) -> None:
         raise AionSemanticError(diagnostics)
 
 
+def build_validated_model(spec: ast.Spec | ParsedSource) -> semantic.SemanticModel:
+    """Reject invalid specs before exposing a policy model to callers.
+
+    This includes TEST expectations and guarantees. The model remains mutable;
+    callers must revalidate after changing its contents. External requests must
+    use declared entities, roles, and actions.
+    """
+    validate_or_raise(spec)
+    model, _ = semantic.SemanticModel.build(spec.spec if isinstance(spec, ParsedSource) else spec)
+    return model
+
+
 # --- individual checks ---------------------------------------------------
 def _check_actions(model: semantic.SemanticModel, out: List[Diagnostic]) -> None:
     """Action parameter entities/roles and the result entity must be declared."""
-    for name, sym in model.actions.items():
-        where = f"ACTION {name}"
+    for sym in model.declarations:
+        if not isinstance(sym, ast.ActionDecl):
+            continue
+        where = f"ACTION {sym.name}"
         for param in sym.params:
             _check_subject_entity_role(model, param.entity, param.role, where, out)
         if sym.result is not None and sym.result not in model.entities:
@@ -123,6 +150,23 @@ def _check_state_refs(model: semantic.SemanticModel, out: List[Diagnostic]) -> N
         _check_field_ref(model, con.left, where, out)
         if isinstance(con.right, ast.FieldRef):
             _check_field_ref(model, con.right, where, out)
+        left_type = _field_type(model, con.left)
+        if isinstance(con.right, ast.FieldRef):
+            right_type = _field_type(model, con.right)
+        else:
+            value = con.right.value
+            right_type = "bool" if isinstance(value, bool) else "int" if isinstance(value, int) else "string"
+        if left_type is not None and right_type is not None:
+            valid = (left_type == right_type if con.op in ("==", "!=")
+                     else left_type == right_type == "int")
+            if not valid:
+                out.append(Diagnostic(COMPARISON_TYPE, where,
+                    f"operator '{con.op}' cannot compare {left_type} with {right_type} (D19)"))
+
+
+def _field_type(model: semantic.SemanticModel, ref: ast.FieldRef) -> Optional[str]:
+    entity = model.entities.get(ref.entity)
+    return entity.fields.get(ref.field) if entity else None
 
 
 def _check_conflicts(model: semantic.SemanticModel, out: List[Diagnostic]) -> None:
@@ -132,7 +176,7 @@ def _check_conflicts(model: semantic.SemanticModel, out: List[Diagnostic]) -> No
         out.append(Diagnostic(
             CONFLICT, f"RULE {rule_name}",
             f"'{subject} -> {action}' appears in both ALLOW and DENY "
-            f"at the same specificity (exact-pair conflict)",
+            f"at the same specificity across the policy model (D17)",
         ))
 
 
@@ -196,7 +240,7 @@ def _check_one_test(
         out.append(Diagnostic(
             TEST_ARITY, where,
             f"action '{action.name}' takes {len(action.params)} parameter(s) "
-            f"(1 actor + {expected_args} argument(s)) but the scenario supplies "
+            f"(TEST requires an actor and {max(expected_args, 0)} argument(s)) but the scenario supplies "
             f"{len(scen.args)} argument(s)",
         ))
         return
@@ -206,6 +250,10 @@ def _check_one_test(
     arg_broken = False
     for i, arg in enumerate(scen.args):
         param = action.params[i + 1]
+        if param.role is not None:
+            out.append(Diagnostic(TEST_ROLE_ARGUMENT, where,
+                f"parameter {i + 2} of '{action.name}' is role-constrained; TEST arguments cannot supply roles (D19)"))
+            arg_broken = True
         if arg not in model.entities:
             out.append(Diagnostic(
                 DANGLING_ENTITY, where,

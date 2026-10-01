@@ -4,18 +4,14 @@ This plan replaces the open-ended roadmap. Each milestone has explicit **exit
 criteria**; a milestone is not "done" when the code is written, but when the
 criteria are demonstrably met (tests, artifacts, or recorded results).
 
-Current position: M2 complete — the semantic model and static validator
-(symbol tables, dangling-reference detection, policy-conflict detection with
-role-override resolution, the five static guarantee atoms, and the D7 `TEST`
-interpreter) are implemented and tested on this branch (`tests/test_m2.py`;
-63 tests pass across M1+M2). The four positive conformance specs validate clean
-with every `TEST` meeting its stated expectation; the two negative specs produce
-exactly their intended diagnostics. M1 (deterministic front end) and M0 remain
-complete on `main`. Next: M3 — intermediate representation.
+Current position: M2 is implemented and locally tested on this PR branch under
+D16–D20; maintainer review and remote CI remain the merge gates. The suite covers
+M1 parsing/round trips, M2 conformance, namespace uniqueness, global conflicts,
+comparison typing, and TEST bindings (see `docs/CONFORMANCE.md`). The four positive
+seed specs pass and the two negative specs report their expected six/two diagnostics.
+M0 and M1 remain complete. After M2 acceptance, next: M3 — intermediate representation.
+Runtime state enforcement remains deferred under D20; no IR or code generation exists.
 
-> Note: this "Current position" line is a status marker advanced as part of the
-> M2 PR for reviewer visibility; it is not an edit to any milestone's exit
-> criteria. Merge is gated on explicit maintainer authorization.
 
 ---
 
@@ -33,8 +29,10 @@ Exit criteria:
   `SPEC.md` are answered at v0.1 scope: minimal primitive types and entity/role
   references only; everything else deferred — and the deferral is recorded.
 - `README.md`, `SPEC.md`, `GRAMMAR.md`, and `PHILOSOPHY.md` cross-checked for
-  contradiction; the current licensing status and open recommendation are
-  recorded, with any license change left to the copyright holder.
+  contradiction; the licensing question is decided and recorded. **Resolved:**
+  the copyright holder adopted the MIT License for the repository (see
+  `LICENSE` and the License section of `README.md`), replacing the earlier
+  proprietary notice.
 
 ## M1 — Parser and AST
 
@@ -55,14 +53,19 @@ Exit criteria:
 **Goal:** the compiler starts saying "no."
 
 Exit criteria:
-- Symbol tables for entities, roles, fields, actions, rules.
+- Symbol tables and namespace uniqueness for all declaration categories (D18),
+  with roles/fields scoped per entity and forward-reference resolution.
 - Dangling-reference diagnostics (D3) for every construct that can dangle.
-- Policy-conflict detection (D2): exact-pair ALLOW∩DENY reported as errors;
-  role-override resolution implemented and tested.
+- Global policy-conflict detection (D17): exact-pair ALLOW∩DENY across all
+  RULEs reported as errors; D16 specificity and idempotent edges tested.
+- Strict comparison typing and TEST binding checks (D19). State checking
+  covers references/types only, with no runtime enforcement claim (D20).
 - All five static guarantee predicates from `GRAMMAR.md` §2 implemented;
   failing guarantees are compile errors.
 - A `TEST` interpreter implementing the D7 decision procedure; every `TEST`
-  block in the conformance suite evaluates to its stated expectation.
+  block in the semantically valid positive conformance specs evaluates to its
+  stated expectation. Invalid negative specs are checked for validation
+  diagnostics, not successful `TEST` evaluation.
 - Negative conformance specs (deliberately broken inputs) each produce exactly
   the intended diagnostic — no false positives, no silent passes.
 

@@ -258,8 +258,7 @@ Current status (v0.1):
   detection, static guarantee evaluation, and the `TEST` interpreter) is
   **Implemented** and **Tested** — the four positive specs validate clean with
   every `TEST` meeting its expectation, and the two negative specs produce exactly
-  their intended diagnostics. 63 tests pass across `tests/test_m1.py` and
-  `tests/test_m2.py`.
+  their intended diagnostics. The full suite passes across M1, M2, engineering, and adopted-decision tests.
 - There is **no IR, generator, or runtime yet** (M3–M4).
 - Nothing is **Verified** or **Proven**; the M2 validator checks *specs*, not the
   toolchain implementation against formal properties, and examples remain design

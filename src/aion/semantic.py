@@ -83,6 +83,8 @@ class SemanticModel:
     """
 
     system_name: str
+    declarations: List[ast.Declaration] = field(default_factory=list)
+    symbols: Dict[str, Dict[str, ast.Declaration]] = field(default_factory=dict)
     entities: Dict[str, EntitySym] = field(default_factory=dict)
     actions: Dict[str, ActionSym] = field(default_factory=dict)
     rules: Dict[str, ast.RuleDecl] = field(default_factory=dict)
@@ -102,10 +104,20 @@ class SemanticModel:
     # --- construction ----------------------------------------------------
     @classmethod
     def build(cls, spec: ast.Spec) -> Tuple["SemanticModel", List[Diagnostic]]:
-        model = cls(system_name=spec.name)
+        model = cls(system_name=spec.name, declarations=list(spec.declarations))
         dups: List[Diagnostic] = []
 
+        seen: Dict[type, Set[str]] = {}
         for decl in spec.declarations:
+            namespace = type(decl).__name__.removesuffix("Decl").lower()
+            model.symbols.setdefault(namespace, {}).setdefault(decl.name, decl)
+            if isinstance(decl, (ast.InvariantDecl, ast.ConstraintDecl, ast.GuaranteeDecl, ast.TestDecl)):
+                kind = type(decl).__name__.removesuffix("Decl").lower()
+                names = seen.setdefault(type(decl), set())
+                if decl.name in names:
+                    dups.append(Diagnostic(f"duplicate-{kind}", f"{kind.upper()} {decl.name}",
+                                           f"{kind} '{decl.name}' is declared more than once"))
+                names.add(decl.name)
             if isinstance(decl, ast.EntityDecl):
                 model._index_entity(decl, dups)
             elif isinstance(decl, ast.ActionDecl):
@@ -201,7 +213,11 @@ class SemanticModel:
         return edge_subject.role is None or edge_subject.role == request.role
 
     def decide(self, request: ast.Subject, action: str) -> Decision:
-        """The D7 decision procedure for ``request attempts action``."""
+        """Low-level D7 analysis; use build_validated_model for validated input.
+
+        This method does not validate a model or check arbitrary request names.
+        TEST declarations go through validate's reference and binding checks.
+        """
         matching: List[Tuple[int, str]] = []  # (specificity, kind)
         for _rule, edge in self.allow_edges:
             if edge.action == action and self._matches(edge.subject, request):
@@ -242,27 +258,21 @@ class SemanticModel:
         )
 
     def conflicts(self) -> List[Tuple[str, str, Optional[str], str]]:
-        """Exact-pair ALLOW∩DENY within a single rule (D2).
+        """Global exact-pair conflicts (D17), one diagnostic per pair.
 
-        Returns ``(rule_name, entity, role, action)`` for every identical
-        ``(subject, action)`` pair that appears in both an ALLOW and a DENY of
-        the same rule. Identical ``(entity, role)`` implies identical
-        specificity, so this is exactly the same-specificity conflict of D2/D11.
+        The locator names the first RULE contributing the conflicting ALLOW.
+        Rule order never affects the policy outcome; it only selects a locator.
         """
-        found: List[Tuple[str, str, Optional[str], str]] = []
-        for rule_name, rule in self.rules.items():
-            allows: Set[Tuple[str, Optional[str], str]] = set()
-            denies: Set[Tuple[str, Optional[str], str]] = set()
-            for block in rule.blocks:
-                if isinstance(block, ast.AllowBlock):
-                    for e in block.edges:
-                        allows.add((e.subject.entity, e.subject.role, e.action))
-                elif isinstance(block, ast.DenyBlock):
-                    for e in block.edges:
-                        denies.add((e.subject.entity, e.subject.role, e.action))
-            for entity, role, action in sorted(allows & denies):
-                found.append((rule_name, entity, role, action))
-        return found
+        allows: Dict[Tuple[str, Optional[str], str], str] = {}
+        denies: Set[Tuple[str, Optional[str], str]] = set()
+        for rule_name, edge in self.allow_edges:
+            allows.setdefault((edge.subject.entity, edge.subject.role, edge.action), rule_name)
+        for _, edge in self.deny_edges:
+            denies.add((edge.subject.entity, edge.subject.role, edge.action))
+        # None and strings cannot be compared directly in Python. The extra
+        # boolean distinguishes the bare subject without conflating its role.
+        key = lambda pair: (pair[0], pair[1] is not None, pair[1] or "", pair[2])
+        return [(allows[pair], *pair) for pair in sorted(allows.keys() & denies, key=key)]
 
     # --- guarantee atoms (GRAMMAR.md §2 catalog, D14) --------------------
     def atom_no_dangling_edges(self) -> bool:

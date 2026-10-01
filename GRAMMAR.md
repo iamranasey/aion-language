@@ -4,7 +4,11 @@ This document is the working grammar for AION v0.1 and the decision log that
 records *why* the grammar is shaped this way. Every design decision here is
 binding for the v0.1 parser unless superseded by a later logged decision.
 
-Status per `PHILOSOPHY.md`: **Specified**, not yet **Implemented**.
+Status per `PHILOSOPHY.md`: the grammar and semantics are **Specified**.
+The M1 front end and M2 semantic validator in `src/` are **Implemented** and
+**Tested** by the conformance suite, including D16–D20 acceptance cases.
+Runtime state enforcement remains deferred under D20. Nothing is yet
+**Verified** or **Proven**.
 
 ---
 
@@ -132,10 +136,10 @@ over it, and evaluation terminates.
 Decisions are numbered and permanent. A decision may only be replaced by a new
 numbered entry that references the one it supersedes.
 
-- **D1 — Fail-closed default.** Absence of an `ALLOW` edge means denial. A
+- **D1 — Fail-closed default (unconditional-deny clause superseded by D16).** Absence of an `ALLOW` edge means denial. A
   request is permitted only if an `ALLOW` edge matches and no `DENY` edge
   matches. There is no implicit allow.
-- **D2 — Conflicts are compile errors (superseded in part by D11).** A conflict
+- **D2 — Conflicts are compile errors (superseded in part by D11 and D17).** A conflict
   is an *exact* `(subject, action)` pair that appears in both `ALLOW` and `DENY`
   within a `RULE` at the *same specificity* (D11); compilation fails on such a
   pair. A `DENY` whose subject differs from the `ALLOW` subject — e.g. a bare
@@ -223,7 +227,7 @@ numbered entry that references the one it supersedes.
   operator token `and`, parentheses, and commas and were therefore not
   unambiguously tokenizable. Adding a new checkable property requires adding a
   new reserved atom under a further decision entry.
-- **D15 — TEST subject binds the actor parameter.** An `ACTION`'s *first*
+- **D15 — TEST subject binds the actor parameter (argument compatibility refined by D19).** An `ACTION`'s *first*
   parameter is its **actor** — the subject that performs it. In a `TEST`
   scenario `subject performs action(arg, ...)`, the `subject` binds to the actor
   parameter position and the parenthesized `ident-list` binds positionally to the
@@ -237,6 +241,48 @@ numbered entry that references the one it supersedes.
   with its parameter's declared entity. `attempts` and `performs` do not affect
   this mapping (they are synonyms, D7). This is a parse/validate-path decision,
   recorded here before M1 rather than left to the parser author.
+
+
+- **D16 — Fail-closed uses D11 specificity (adopted 2026-10-01).** This
+  supersedes D1's unconditional requirement that no DENY edge match. On a
+  valid model, the highest-specificity matching edge decides under D7/D11:
+  a role-qualified ALLOW can override a bare DENY. No matching edge denies;
+  equal-specificity ALLOW/DENY on the same pair is a compile error, not denial.
+- **D17 — RULE blocks compose globally (adopted 2026-10-01).** RULE names
+  organize one policy model; there is no rule selection or declaration-order
+  precedence. All ALLOW/DENY/REQUIRE edges compose across all RULE blocks.
+  This supersedes D2's restriction of conflict detection to within one RULE:
+  an exact (subject, action) ALLOW/DENY pair anywhere is a compile error even
+  when no TEST exercises it. Duplicate same-effect edges are idempotent.
+  Duplicate REQUIRE edges impose one AUDIT obligation, not repeated events.
+- **D18 — Declaration namespaces and resolution (adopted 2026-10-01).**
+  Entities, actions, rules, invariants, constraints, guarantees, and tests each
+  have a separate namespace. Names must be unique within their namespace;
+  duplicate declarations are compile errors, never replacement. Roles and
+  fields are unique within their entity, in separate namespaces. Collect all
+  declarations before resolving references, so forward references are valid.
+  A role reference must name a declared role of its referenced entity (D4).
+- **D19 — Strict comparisons and TEST bindings (adopted 2026-10-01).**
+  Comparison operands have no implicit coercions. Equality and inequality
+  require the same primitive type; ordering (<, <=, >, >=) requires two ints.
+  Zero-parameter ACTION declarations remain syntactically valid, but a TEST
+  invoking one is an arity error under D15. The TEST subject must be declared;
+  actor type mismatch alone does not decide authorization (D15).
+  Each non-actor argument must name its parameter's declared entity. A TEST
+  invoking an action with a role-constrained non-actor parameter is rejected:
+  the bare argument syntax supplies no role and none is inferred. This
+  refines D15's argument compatibility; the ACTION declaration itself still
+  parses and is not rejected solely for having such a parameter.
+- **D20 — State execution semantics remain a design gate (adopted 2026-10-01).**
+  M2 validates state references and comparison types; it does not enforce
+  constraint values or invariant preservation during execution. Before a
+  state-aware target is implemented, a further decision must define execution
+  context, actor/argument/result instance identity, before/after snapshots,
+  comparison timing, failed actions, and audit delivery failure behavior.
+  A target must reject unsupported invariants, constraints, monitors, and
+  proof requirements rather than discard them. This adopts a scope boundary,
+  not a runtime state model. The separate proposed M4 non-policy demonstration
+  criterion in PRIOR-ART.md remains unadopted.
 
 ---
 

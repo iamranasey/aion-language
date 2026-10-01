@@ -33,6 +33,29 @@ The v0.1 vocabulary:
 
 The concrete syntax, the guarantee predicate catalog, and the decision log live in [`GRAMMAR.md`](GRAMMAR.md) and are part of this specification.
 
+For definitions of the terms used in this specification, see [`GLOSSARY.md`](GLOSSARY.md). The glossary is non-normative: on any disagreement, this specification and [`GRAMMAR.md`](GRAMMAR.md) win.
+
+### Adopted semantic rules (D16–D20)
+
+Policy edges compose globally across RULE blocks, independent of declaration
+order. Highest subject specificity decides; an exact ALLOW/DENY conflict anywhere
+is a compile error. Duplicate same-effect edges and audit obligations are idempotent.
+Each declaration category has its own namespace; names are unique within it.
+Roles and fields are unique in separate namespaces within an entity. Forward
+references resolve after collecting all declarations.
+
+Comparisons do not coerce types: equality/inequality require matching primitive
+types, and ordering requires ints. TESTs cannot invoke zero-parameter actions or
+actions with role-constrained non-actor parameters. Other non-actor arguments
+must name the parameter's declared entity; actor authorization still follows
+policy, not actor type matching. These are semantic checks, not parser changes.
+
+M2 state checking covers references and comparison types only. State execution
+and monitor enforcement require further decisions; targets must reject unsupported
+constructs rather than discard them. M2 implements and tests the policy, name,
+reference, type, and TEST checks. Runtime state enforcement remains deferred.
+See GRAMMAR D16–D20 for the authoritative decisions.
+
 ## 4. Normative Example
 
 `OrderService` is the v0.1 conformance example: every construct above appears in it, and the milestone M1 parser must accept it while the M2 test runner must pass both of its `TEST` blocks.
@@ -154,7 +177,7 @@ Status of the original eight questions after [`GRAMMAR.md`](GRAMMAR.md):
 2. **Core language vs. libraries** — *answered for v0.1*: everything in §3 is core; there is no library mechanism yet. First library candidates after M4: obligation kinds beyond `AUDIT`, additional guarantee predicates.
 3. **Natural-language intent → deterministic semantics** — *deferred*. v0.1 sidesteps it by restricting expressions to declared names and fixed predicate shapes (D8).
 4. **IR contents** — *assigned to M3* with a round-trip preservation requirement.
-5. **Checking generated code against guarantees** — *partially answered*: `static` guarantees hold by construction of the pipeline (validated before generation); `monitor` guarantees require target instrumentation; traceability mapping is an M4 exit criterion.
+5. **Checking generated code against guarantees** — *partially answered*: `static` guarantees are specified as checks over the semantic model; preserving their meaning in generated artifacts requires separate evidence. `monitor` guarantees require target instrumentation; traceability mapping is an M4 exit criterion and is not itself a correctness proof.
 6. **Concurrency and distributed systems** — *deferred*, non-goal for v0.1.
 7. **Data, deployment, and infrastructure requirements** — *deferred*, non-goal for v0.1.
 8. **Which security properties AION validates directly** — *answered for v0.1*: policy conflict-freedom, reachability, dangling references, obligation wiring, and the static guarantee catalog.

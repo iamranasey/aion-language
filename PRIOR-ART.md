@@ -23,131 +23,56 @@ close it — honestly, including the ways the bet could fail.
 
 ---
 
-## 1. The four neighbors, assessed without flattery
+## 1. Informative comparisons and limits
 
-### 1.1 Rego / Open Policy Agent, and Cedar (AWS)
+These comparisons describe overlapping design goals. They do not establish
+novelty, exclusive capability, patentability, or superiority.
 
-**What they are:** mature, production-deployed policy languages purpose-built
-for authorization decisions. Rego/OPA is widely used for admission control,
-API authorization, and CI/CD gating. Cedar backs Amazon Verified
-Permissions in production.
+### 1.1 Rego / OPA and Cedar
 
-**Overlap with AION:** total, for the only example that currently exists.
-`OrderService`'s `ALLOW`/`DENY` edges, role-scoped subjects
-(`Staff[Finance]`), and `REQUIRE ... AUDIT` obligations are structurally an
-authorization policy — the exact domain Rego and Cedar already solve, with
-years of tooling, IDE support, and community behind them.
+AION's policy examples overlap with established authorization tools. Its
+current six seed examples exercise parsing and model validation, not a production authorization service.
+AION's D11 specificity semantics differ from Cedar's forbid-overrides-permit
+rule, so a future translation needs explicit semantic preservation rather
+than direct keyword substitution. See [Cedar authorization semantics](https://docs.cedarpolicy.com/auth/authorization.html).
+The first target remains a bounded experiment; no production advantage is
+claimed. State constraints and invariants require an execution model before
+an end-to-end enforcement comparison is meaningful.
 
-**Honest assessment:** for authorization policy alone, today, a team is
-almost certainly better served writing Rego or Cedar directly. AION does
-not currently out-compete them on their own ground, and the docs should not
-imply otherwise. `MILESTONES.md`'s own M4 recommendation — targeting
-OPA/Rego — makes the overlap explicit rather than coincidental, which
-raises the stakes on answering this section, not lowers them.
+### 1.2 TLA+, Alloy, and Dafny
 
-**The actual bet, stated honestly:** AION is not trying to be a better
-authorization DSL. It's trying to be a language where authorization is *one
-slice* of a larger system-intent model — the same `ENTITY`/`ACTION` model
-that declares `Order.total` and `Payment.amount` is meant to eventually
-carry state invariants, business-rule constraints, and (per open question 7)
-data and deployment shape, all under the same guarantee discipline. The
-`OrderService` example only shows the authz slice because that's the only
-slice with worked-out semantics so far (D1–D8 are almost entirely about
-policy). This is a **falsifiable bet, currently unproven**: if the
-non-authz constructs (`INVARIANT`, `CONSTRAINT`, and whatever eventually
-answers open question 7) never get the same rigor as the policy semantics,
-AION has no real claim over Rego/Cedar and should say so rather than
-pretend otherwise. This is the single most important thing for the project
-to prove or disprove early — see the M4 proposal in §3.
-
-### 1.2 TLA+ / Alloy / Dafny
-
-**What they are:** rigorous formal-specification and verification tools,
-academically mature, with real proof-class guarantees available.
-
-**Overlap with AION:** the `static` → `monitor` → `proof` guarantee-class
-ladder in `GRAMMAR.md` §4 is explicitly reaching toward the same territory
-these tools already occupy at the `proof` tier.
-
-**Honest track record:** decades of maturity, still niche adoption. The
-well-documented reason isn't that formal methods don't work — it's that (a)
-the notation and mental model impose a steep learning curve most engineering
-teams don't invest in, and (b) the spec is written and maintained *separately*
-from the implementation, so the two drift apart over time with nothing
-forcing them back into alignment. TLA+ can prove your spec correct; it
-cannot prove your code still matches the spec six months later.
-
-**The bet:** AION's traceability requirement (M4: every generated artifact
-carries a source → IR → target mapping) is aimed specifically at failure
-mode (b) — because the implementation is *generated from* the spec rather
-than hand-maintained alongside it, the sync-rot problem that has capped
-formal-methods adoption for decades doesn't have the same opportunity to
-occur. This is a genuinely different approach to the adoption barrier, not
-just a smaller/friendlier TLA+.
-
-**Risk to flag honestly:** this bet only pays off if code generation (M4+)
-produces output good enough to actually ship, not toy artifacts nobody
-trusts. If generated code quality never clears that bar, the traceability
-guarantee becomes moot — nobody adopts output they don't trust regardless
-of how well-traced it is.
+These tools address related specification, analysis, and verification problems
+with different execution models and proof obligations. A source-to-target
+traceability report records provenance; it does not prove that translation
+preserves semantics or eliminate implementation defects. AION has no proof
+backend. Claims about comparative usability, adoption, or assurance need
+explicit tasks and measured evidence, not broad assertions about formal methods.
 
 ### 1.3 Gherkin / BDD
 
-**What it is:** natural-language-adjacent scenario syntax
-(`Given/When/Then`) backing hand-written step-definition glue code.
+AION specifies TEST outcomes through D7/D11 over its policy model. That evaluator
+is implemented and covered by M2 conformance tests. This differs in design from scenarios
+connected to implementation-specific step definitions, but it is not yet a
+measured usability or correctness advantage.
 
-**Overlap:** AION's `TEST` blocks read in a similarly natural style
-(`Staff[Support] attempts refund(Payment) EXPECT DENIED`).
+### 1.4 Checking generated implementations
 
-**Honest limit of Gherkin:** the language itself doesn't know what
-"succeeds" or "fails" means — a human wrote untyped step-definition code
-that decides that, and Gherkin has no way to check that the glue code
-matches the scenario's intent.
+AION's research hypothesis is that a bounded intent model, executable reference
+semantics, and traceable generation can make selected implementation behaviors
+easier to check. Evaluation over a finite declared policy model is decidable;
+that fact does not make arbitrary program correctness decidable. Passing a
+finite scenario suite establishes only those observed outcomes. Broader claims
+require a stated input domain, supported constructs, environmental assumptions,
+and an appropriate exhaustive check or proof.
 
-**AION's actual difference — and this one is already true, not
-aspirational:** a `TEST` block's `EXPECT` is evaluated by the D7 decision
-procedure over the declared policy model, not by hand-written glue code. If
-this is stated anywhere, it should be stated with confidence — of the four
-comparisons in this document, this is the only one where AION already does
-something the neighbor structurally cannot, today, without waiting on M3/M4.
-
-### 1.4 The AI-generation angle — the least developed, most novel bet
-
-None of the above were designed for a world where an AI model is expected
-to write or maintain the implementation. This is the gap that's actually
-unoccupied, and it deserves to be the lead thesis rather than a closing
-footnote:
-
-Today, if you hand an AI model a natural-language spec or a ticket and ask
-it to implement a system, there is no mechanical way to check whether the
-implementation honored the intent — you're back to code review by eyeball,
-at exactly the moment AI-generated code volume is making eyeball review the
-bottleneck.
-
-**The differentiation claim AION can make that Rego, Cedar, TLA+, Alloy,
-Dafny, and Gherkin cannot:** AION is not a better way for a human to write
-policy or specs. It is a substrate an AI model can implement *against*,
-where "did the AI get it right" is a **decidable question** — the same
-`TEST` suite and guarantee predicates that validate the AION source are
-re-run against whatever the AI generates, and a wrong implementation fails
-mechanically instead of passing a plausible-looking review. `MILESTONES.md`
-M5 already gates AI tooling behind exactly this ("every AI-generated
-proposal ... passes deterministic validation before being presented as a
-result") — the thesis has quietly already been designed into the milestone
-plan. It just hasn't been stated as the project's central bet anywhere a
-reader would find it.
-
-**Honest status:** unproven, gated behind M3 and M4. The correct move now
-is to state this as the thesis explicitly, and treat M4/M5 as the
-milestones that either validate or falsify it — not to claim it as already
-demonstrated.
+No unoccupied market or unique AI-verification capability is asserted. The
+experiment and baseline measurements are described in [CONFORMANCE.md](docs/CONFORMANCE.md).
 
 ---
 
-## 2. What this means for positioning (proposed, not adopted)
+## 2. Adopted positioning
 
-If accepted, the lead differentiation statement for `README.md` /
-`PHILOSOPHY.md` would read something like:
+The adopted differentiation statement in `README.md` and `PHILOSOPHY.md` is:
 
 > AION's bet is not that humans should specify systems in a new syntax
 > instead of Rego, Cedar, or TLA+ — for policy alone, those are mature and
