@@ -86,7 +86,7 @@ Declaration keywords are uppercase and reserved.
 | **predicate** | The property a guarantee asserts: a boolean combination (`and`, `or`, `not`, parentheses) of reserved atoms. | D14 |
 | **atom (predicate atom)** | A single reserved uppercase token naming one checkable property. Adding a new atom requires a decision-log entry. | D14 |
 | **`NO_DANGLING_EDGES`** | Every `ALLOW`/`DENY` edge targets a declared `ACTION`. | GRAMMAR §2 |
-| **`CONFLICT_FREE`** | No `(subject, action)` pair appears in both `ALLOW` and `DENY` at the same specificity. | GRAMMAR §2 |
+| **`CONFLICT_FREE`** | No `(subject, action)` pair appears in both `ALLOW` and `DENY` at the same specificity, anywhere across all `RULE` blocks. | GRAMMAR §2, D17 |
 | **`NO_DANGLING_OBLIGATIONS`** | Every `REQUIRE` obligation targets a declared `ACTION`. | GRAMMAR §2 |
 | **`NO_DEAD_ACTIONS`** | Every declared `ACTION` is reachable by some effective `ALLOW`. | GRAMMAR §2 |
 | **`NO_DANGLING_STATE_REFS`** | Every `INVARIANT` and `CONSTRAINT` field-ref names a declared entity and field. | GRAMMAR §2 |

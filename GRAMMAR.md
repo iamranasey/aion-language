@@ -118,7 +118,7 @@ token, so the parser never has to distinguish predicate prose from operators:
 | Atom | Meaning |
 | --- | --- |
 | `NO_DANGLING_EDGES` | Every `ALLOW`/`DENY` edge targets a declared `ACTION` |
-| `CONFLICT_FREE` | No `(subject, action)` pair appears in both `ALLOW` and `DENY` at the same specificity (D2, D11) |
+| `CONFLICT_FREE` | No `(subject, action)` pair appears in both `ALLOW` and `DENY` at the same specificity, anywhere across all `RULE` blocks (D2, D11, D17) |
 | `NO_DANGLING_OBLIGATIONS` | Every `REQUIRE` obligation targets a declared `ACTION` |
 | `NO_DEAD_ACTIONS` | Every declared `ACTION` is reachable by some effective `ALLOW` (D11) |
 | `NO_DANGLING_STATE_REFS` | Every `INVARIANT` and `CONSTRAINT` field-ref names a declared entity and field (D12, D13) |

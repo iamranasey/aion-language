@@ -40,7 +40,7 @@ What exists now:
 - A prior-art and differentiation thesis in [`PRIOR-ART.md`](PRIOR-ART.md); its §2 positioning is adopted in this README and in [`PHILOSOPHY.md`](PHILOSOPHY.md), while its §3 M4 reframe remains a proposal.
 - One normative example (`OrderService`, in `SPEC.md`) that doubles as the first conformance target.
 - An **M1 syntactic front end** in [`src/`](src/): a hand-written deterministic lexer, LL(1) recursive-descent parser, AST, and pretty-printer with a stable `parse → print → re-parse` round-trip. All six `examples/*.aion` specs parse and round-trip; see [`src/README.md`](src/README.md) and [`tests/`](tests/).
-- An **M2 semantic validator** in [`src/`](src/): symbol tables, dangling-reference detection (D3), policy-conflict detection with role-override resolution (D2/D11), the five static guarantee atoms (D5/D14), and a `TEST` interpreter implementing the D7 decision procedure. The four positive `examples/*.aion` specs validate clean with every `TEST` evaluating to its stated expectation; the two negative specs produce exactly their intended diagnostics; see [`tests/test_m2.py`](tests/test_m2.py).
+- An **M2 semantic validator** in [`src/`](src/): symbol tables, dangling-reference detection (D3), policy-conflict detection with role-override resolution (D2/D11/D16/D17), the five static guarantee atoms (D5/D14), and a `TEST` interpreter implementing the D7 decision procedure. The four positive `examples/*.aion` specs validate clean with every `TEST` evaluating to its stated expectation; the two negative specs produce exactly their intended diagnostics; see [`tests/test_m2.py`](tests/test_m2.py).
 
 What does not exist yet:
 

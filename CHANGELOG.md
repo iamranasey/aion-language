@@ -17,3 +17,7 @@
 - Add semantic diagnostic codes and optional declaration source ranges, a
   validated-model factory, and published conformance vectors.
 - No runtime state enforcement, published release, or certification is claimed.
+- Correct post-merge documentation drift: the `CONFLICT_FREE` atom row now cites
+  D17's global scope, the milestone position records M2 as merged rather than
+  pending review, and `SECURITY.md` states the D16/D17 semantics that change what
+  a policy means. Documentation only — no grammar, validator, or CLI change.

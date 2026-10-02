@@ -10,6 +10,31 @@ before returning a model. Low-level `SemanticModel.build` and `decide` are analy
 primitives, not validation gates. Models are mutable: revalidate after mutation,
 and supply only declared entity/role/action names in external queries.
 
+## Semantics that change what a policy means
+
+Two adopted decisions are easy to misread when reasoning about an AION policy as a
+security control:
+
+- **A bare `DENY` is not an unconditional block (D11, D16).** The
+  highest-specificity matching edge decides: `ALLOW User[Admin] -> archive`
+  overrides `DENY User -> archive` for an Admin, while that same `DENY` still
+  denies every non-Admin `User`. Writing a broad `DENY` and assuming it closes an
+  action for everyone is a specification error, not defence in depth.
+- **`RULE` blocks are not isolation boundaries (D17).** All `ALLOW`, `DENY`, and
+  `REQUIRE` edges compose into one model with no declaration-order precedence, and
+  an exact `(subject, action)` pair appearing in both `ALLOW` and `DENY` anywhere
+  in it is a compile error even when no `TEST` exercises it. Splitting a policy
+  across blocks neither scopes nor shadows anything.
+
+Conflict detection runs over the whole composed model: an exact pair split across
+two `RULE` blocks is reported as a `conflict` diagnostic citing D17. Specificity
+produces no diagnostic of its own — it is how the D7 decision procedure computes an
+outcome, so a `TEST` block is the way to pin the intended outcome down. Both hold
+over the declared model only: `proof`-class guarantees are unsupported in v0.1 and
+rejected (D5), and `monitor`-class guarantees are accepted without static checking,
+so a spec that validates can still assert runtime properties that nothing in this
+repository enforces (D20).
+
 ## Untrusted input
 
 The front end reads source and constructs an AST; it does not execute AION input,
