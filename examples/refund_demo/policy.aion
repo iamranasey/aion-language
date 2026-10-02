@@ -1,0 +1,41 @@
+SYSTEM RefundDemo
+
+ENTITY Customer
+ENTITY Staff
+    roles: [Support, Finance]
+ENTITY Payment
+    fields: [amount: int, refunded: int]
+
+ACTION pay(Customer) -> Payment
+ACTION refund(Staff[Finance], Payment)
+
+RULE Access
+ALLOW
+    Customer -> pay
+    Staff[Finance] -> refund
+DENY
+    Staff -> refund
+REQUIRE
+    pay -> AUDIT
+    refund -> AUDIT
+
+INVARIANT original_payment_preserved
+    after refund, Payment.amount unchanged
+CONSTRAINT refund_budget
+    Payment.refunded <= Payment.amount
+CONSTRAINT refund_nonnegative
+    Payment.refunded >= 0
+
+GUARANTEE static valid_policy
+    NO_DANGLING_EDGES and CONFLICT_FREE and NO_DEAD_ACTIONS
+
+TEST customer_can_pay
+    Customer performs pay()
+    EXPECT ALLOWED, AUDIT
+TEST finance_can_refund
+    Staff[Finance] performs refund(Payment)
+    EXPECT ALLOWED, AUDIT
+TEST support_cannot_refund
+    Staff[Support] attempts refund(Payment)
+    EXPECT DENIED
+
