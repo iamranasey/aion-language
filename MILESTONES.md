@@ -4,12 +4,14 @@ This plan replaces the open-ended roadmap. Each milestone has explicit **exit
 criteria**; a milestone is not "done" when the code is written, but when the
 criteria are demonstrably met (tests, artifacts, or recorded results).
 
-Current position: M2 is implemented and locally tested on this PR branch under
-D16–D20; maintainer review and remote CI remain the merge gates. The suite covers
-M1 parsing/round trips, M2 conformance, namespace uniqueness, global conflicts,
-comparison typing, and TEST bindings (see `docs/CONFORMANCE.md`). The four positive
-seed specs pass and the two negative specs report their expected six/two diagnostics.
-M0 and M1 remain complete. After M2 acceptance, next: M3 — intermediate representation.
+Current position: M2 is accepted and merged into `main` (PRs #7 and #12) under
+D16–D20. It is Implemented and Tested: the full CI matrix (3 operating systems ×
+Python 3.10–3.14) passes, and the local suite is 97 tests plus 150 subtests. The
+suite covers M1 parsing/round trips, M2 conformance, namespace uniqueness, global
+conflicts, comparison typing, and TEST bindings (see `docs/CONFORMANCE.md`). The
+four positive seed specs validate clean and the two negative specs report their
+expected six/two diagnostics. M0, M1, and M2 are complete; nothing is Verified or
+Proven. Next: M3 — intermediate representation.
 Runtime state enforcement remains deferred under D20; no IR or code generation exists.
 
 

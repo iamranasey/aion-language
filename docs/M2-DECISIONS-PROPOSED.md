@@ -4,7 +4,8 @@ Status: **ADOPTED by maintainer instruction on 2026-10-01.**
 A–D are recorded as GRAMMAR D16–D19. E's design gate and scope boundary are
 recorded as D20; no concrete runtime state model is adopted. The filename is
 retained for existing links. The original options and recommendations below
-are historical rationale; GRAMMAR is authoritative. M2 checks are implemented and locally tested on the PR branch.
+are historical rationale; GRAMMAR is authoritative. M2 checks are merged into
+`main` and pass the full CI matrix.
 
 ## A. Denial and specificity (clarification of D1/D11)
 
