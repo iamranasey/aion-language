@@ -25,3 +25,10 @@ remain the M0 seed and do not by themselves cover every newly adopted rule.
 The negative files intentionally contain more than one independent defect. A
 validator should report each applicable diagnostic rather than silently
 accepting the specification.
+## Exploratory executable example
+
+The [refund demo](refund_demo/README.md) combines M2 authorization with a
+handwritten Python application adapter. It exercises successful actions, denied
+requests, cumulative refund limits and audit records. It is separate from the
+six conformance seeds above and does not implement AION runtime semantics or
+code generation.
